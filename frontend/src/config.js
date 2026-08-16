@@ -6,7 +6,7 @@
 export const BRAND = {
   name: "Trading Bulls Academy",
   tagline: "Master the Markets. Trade with Edge.",
-  whatsappNumber: "+91XXXXXXXXXX", // include country code, no spaces (used in wa.me link)
+  whatsappNumber: "+917777930377", // include country code, no spaces (used in wa.me link)
   whatsappMessage: "Hi! I want to know more about your Trading Course.",
 };
 
