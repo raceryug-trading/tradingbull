@@ -1,0 +1,32 @@
+{
+  "summary": "Frontend-only verification of Firebase cloud sync on the LIVE GitHub Pages production deployment (https://raceryug-trading.github.io/tradingbull/). Validated landing page + brand + 4 stat cards + market ticker, WhatsApp floating button number, cloud-badge / cloud-sync-indicator (proving firebaseEnabled=true in the deployed bundle), real Firestore student login (test1/test123) landing on /#/modules with modules rendered, admin invalid-credential failure path via Firebase Auth, and protected-route redirects for /#/modules and /#/admin. No test data was written to Firestore. All 8 requested checks passed.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "All pages (document <title>)",
+        "issues": ["Browser tab title on the live deployment is still the default 'Emergent | Fullstack App' instead of 'Trading Bulls Academy' — cosmetic branding/SEO miss in public/index.html"]
+      }
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Optional (cosmetic): set <title> in /app/frontend/public/index.html to 'Trading Bulls Academy — Master the Markets' and redeploy; currently shows 'Emergent | Fullstack App'.",
+    "Optional (robustness): one transient Firestore WebChannel 'Listen' transport error / [code=unavailable] was logged on first load from the test container network; the app degraded gracefully (cloudFetchStudent fallback still authenticated the student). Consider surfacing a small 'reconnecting' state instead of a raw console error."
+  ],
+  "critical_code_review_comments": [
+    "Login.jsx correctly falls back to cloudFetchStudent when the local snapshot has not hydrated — verified working on the live build (student login succeeded ~1s after page load).",
+    "Failed admin login does not write ta_session to localStorage (verified null) — no partial-auth leak.",
+    "Student passwords are compared client-side against a publicly-readable Firestore document (cloudFetchStudent + cloudUser.password === password). This is a security design weakness, not a bug: any visitor can read student credentials via public Firestore reads. Recommend moving student auth to Firebase Auth accounts or Cloud Functions before wider rollout."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "N/A (frontend-only request)", "frontend": "100% (8/8 checks passed)" },
+  "seed_data_creation": "None — no writes made to production Firestore, as instructed.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "Student test1/test123 exists in production Firestore and works. Real admin password intentionally NOT used; only test@fake.com/wrong tested (correctly rejected).",
+  "context_for_next_testing_agent": "LIVE base URL https://raceryug-trading.github.io/tradingbull/ with HashRouter (#/login, #/modules, #/admin). firebaseEnabled=true on the deployed bundle: cloud-badge in header + cloud-sync-indicator on /#/login both render, and admin mode switches the username field to email type with placeholder admin@yourdomain.com. Firestore student test1/test123 is present in production. The console '400' error seen during admin login is the expected Firebase Auth identitytoolkit response for invalid credentials — NOT a config error (no auth/unauthorized-domain, no api-key-not-valid, no permission-denied observed). Admin console (/#/admin) was not exercised because real admin credentials were off-limits; the admin cloud pill remains untested.",
+  "rca_of_the_issue": "No defects found. Firebase config is correctly baked into the production bundle, authorized domain works (auth requests reach identitytoolkit and return a proper invalid-credentials error rather than a domain rejection), and Firestore public reads succeed (modules/announcements and student lookup)."
+}
