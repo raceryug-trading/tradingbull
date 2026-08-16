@@ -4,10 +4,18 @@
 // ============================================================================
 
 export const BRAND = {
-  name: "Your Trading Academy",
+  name: "Trading Bulls Academy",
   tagline: "Master the Markets. Trade with Edge.",
   whatsappNumber: "+91XXXXXXXXXX", // include country code, no spaces (used in wa.me link)
   whatsappMessage: "Hi! I want to know more about your Trading Course.",
+};
+
+// Public-facing stats shown on the landing page (edit freely)
+export const STATS = {
+  enrollments: "400+",
+  rating: "4.9",
+  topics: "36+",
+  modules: "19+",
 };
 
 // Default admin & student accounts (loaded on first visit only, then editable via Admin Panel).

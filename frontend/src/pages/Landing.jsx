@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { Activity, TrendingUp, LineChart, Radio, ShieldCheck, ArrowRight } from "lucide-react";
-import { BRAND } from "../config";
+import { Activity, TrendingUp, LineChart, Radio, ShieldCheck, ArrowRight, Users, Star, Layers, BookOpen } from "lucide-react";
+import { BRAND, STATS } from "../config";
 import MarketTicker from "../components/MarketTicker";
 
 export default function Landing() {
@@ -47,10 +47,11 @@ export default function Landing() {
                 </a>
               </div>
 
-              <div className="mt-10 grid grid-cols-3 gap-4 max-w-md">
-                <Stat label="Modules" value="03+" />
-                <Stat label="Live / week" value="1×" />
-                <Stat label="Access" value="24/7" />
+              <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl">
+                <StatCard icon={Users} value={STATS.enrollments} label="Enrollments" testId="stat-enrollments" />
+                <StatCard icon={Star} value={STATS.rating} label="Rating" testId="stat-rating" tone="gold" />
+                <StatCard icon={Layers} value={STATS.topics} label="Topics" testId="stat-topics" />
+                <StatCard icon={BookOpen} value={STATS.modules} label="Modules" testId="stat-modules" />
               </div>
             </div>
 
@@ -132,6 +133,29 @@ const Stat = ({ label, value }) => (
   <div className="rounded border border-[#232D42] bg-[#111622] p-3">
     <div className="font-display text-xl font-bold text-emerald-400">{value}</div>
     <div className="mt-0.5 font-mono-t text-[9px] uppercase tracking-widest text-gray-500">{label}</div>
+  </div>
+);
+
+const StatCard = ({ icon: Icon, value, label, tone = "emerald", testId }) => (
+  <div
+    data-testid={testId}
+    className="group relative overflow-hidden rounded-lg border border-[#232D42] bg-gradient-to-br from-[#161D2F] to-[#111622] p-4 card-lift"
+  >
+    <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-emerald-500/5 blur-2xl group-hover:bg-emerald-500/15 transition-colors" />
+    <Icon
+      className={`h-4 w-4 ${tone === "gold" ? "text-amber-400" : "text-emerald-400"}`}
+      strokeWidth={2.2}
+    />
+    <div
+      className={`mt-2 font-display text-2xl sm:text-3xl font-extrabold tracking-tight ${
+        tone === "gold" ? "text-amber-400" : "text-gray-100"
+      }`}
+    >
+      {value}
+    </div>
+    <div className="mt-0.5 font-mono-t text-[9px] uppercase tracking-widest text-gray-500">
+      {label}
+    </div>
   </div>
 );
 
