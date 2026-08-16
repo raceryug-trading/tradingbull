@@ -1,4 +1,6 @@
 // Client-side data store using localStorage. Works on GitHub Pages (no backend).
+// If Firebase is configured (see lib/firebase.js), mutations also fan out to
+// Firestore and subscribers keep localStorage in sync across all browsers.
 import {
   DEFAULT_ADMIN,
   DEFAULT_STUDENTS,
@@ -6,6 +8,8 @@ import {
   DEFAULT_LIVE,
   DEFAULT_ANNOUNCEMENTS,
 } from "../config";
+import { firebaseEnabled } from "./firebase";
+import * as cloud from "./cloudSync";
 
 const KEYS = {
   admin: "ta_admin",
@@ -79,11 +83,13 @@ export function addStudent(s) {
     throw new Error("Username already exists");
   list.push(s);
   write(KEYS.students, list);
+  if (firebaseEnabled) cloud.cloudAddStudent(s).catch(console.error);
   return list;
 }
 export function removeStudent(username) {
   const list = getStudents().filter((x) => x.username !== username);
   write(KEYS.students, list);
+  if (firebaseEnabled) cloud.cloudRemoveStudent(username).catch(console.error);
   return list;
 }
 
@@ -100,12 +106,15 @@ export function saveModules(mods) {
 }
 export function addModule(mod) {
   const list = getModules();
-  list.push({ ...mod, id: `mod-${Date.now()}`, lessons: mod.lessons || [] });
+  const created = { ...mod, id: `mod-${Date.now()}`, lessons: mod.lessons || [] };
+  list.push(created);
   saveModules(list);
+  if (firebaseEnabled) cloud.cloudSaveModule(created).catch(console.error);
   return list;
 }
 export function removeModule(id) {
   saveModules(getModules().filter((m) => m.id !== id));
+  if (firebaseEnabled) cloud.cloudRemoveModule(id).catch(console.error);
 }
 export function addLesson(moduleId, lesson) {
   const list = getModules();
@@ -114,6 +123,7 @@ export function addLesson(moduleId, lesson) {
   m.lessons = m.lessons || [];
   m.lessons.push({ ...lesson, id: `les-${Date.now()}` });
   saveModules(list);
+  if (firebaseEnabled) cloud.cloudSaveModule(m).catch(console.error);
   return list;
 }
 export function removeLesson(moduleId, lessonId) {
@@ -122,32 +132,37 @@ export function removeLesson(moduleId, lessonId) {
   if (!m) return;
   m.lessons = (m.lessons || []).filter((l) => l.id !== lessonId);
   saveModules(list);
+  if (firebaseEnabled) cloud.cloudSaveModule(m).catch(console.error);
   return list;
 }
 
 // ---------- Live Session ----------
 export const getLive = () => read(KEYS.live, DEFAULT_LIVE);
 export function updateLive(data) {
-  write(KEYS.live, { ...getLive(), ...data });
-  return getLive();
+  const next = { ...getLive(), ...data };
+  write(KEYS.live, next);
+  if (firebaseEnabled) cloud.cloudUpdateLive(next).catch(console.error);
+  return next;
 }
 
 // ---------- Announcements ----------
 export const getAnnouncements = () => read(KEYS.announcements, []);
 export function addAnnouncement(a) {
-  const list = getAnnouncements();
-  list.unshift({
+  const item = {
     id: `ann-${Date.now()}`,
     tone: "info",
     createdAt: new Date().toISOString(),
     ...a,
-  });
+  };
+  const list = [item, ...getAnnouncements()];
   write(KEYS.announcements, list);
+  if (firebaseEnabled) cloud.cloudAddAnnouncement(item).catch(console.error);
   return list;
 }
 export function removeAnnouncement(id) {
   const list = getAnnouncements().filter((a) => a.id !== id);
   write(KEYS.announcements, list);
+  if (firebaseEnabled) cloud.cloudRemoveAnnouncement(id).catch(console.error);
   return list;
 }
 
@@ -191,6 +206,16 @@ export function importAll(data) {
   if (Array.isArray(data.modules)) write(KEYS.modules, data.modules);
   if (data.live) write(KEYS.live, data.live);
   if (Array.isArray(data.announcements)) write(KEYS.announcements, data.announcements);
+  if (firebaseEnabled) {
+    cloud
+      .cloudBulkImport({
+        students: data.students || [],
+        modules: data.modules || [],
+        announcements: data.announcements || [],
+        live: data.live || null,
+      })
+      .catch(console.error);
+  }
 }
 export function resetAll() {
   [KEYS.admin, KEYS.students, KEYS.modules, KEYS.live, KEYS.announcements, KEYS.version].forEach(

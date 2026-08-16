@@ -1,7 +1,9 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { Activity, LogOut, Radio, Shield, Video } from "lucide-react";
+import { Activity, LogOut, Radio, Shield, Video, Cloud } from "lucide-react";
 import { BRAND } from "../config";
 import { currentSession, logout, getLive } from "../lib/store";
+import { firebaseEnabled } from "../lib/firebase";
+import { cloudLogout } from "../lib/cloudSync";
 
 const navItemClass = ({ isActive }) =>
   `flex items-center gap-1.5 px-3 py-2 text-sm font-medium tracking-wide uppercase transition-colors border-b-2 ${
@@ -16,6 +18,9 @@ export const Header = () => {
   const live = getLive();
 
   const handleLogout = () => {
+    if (firebaseEnabled && session?.role === "admin") {
+      cloudLogout().catch(() => {});
+    }
     logout();
     navigate("/login");
   };
@@ -33,6 +38,15 @@ export const Header = () => {
             <div className="font-display text-lg font-bold uppercase tracking-wider text-gray-100">
               {BRAND.name}
             </div>
+            {firebaseEnabled && (
+              <span
+                data-testid="cloud-badge"
+                className="hidden sm:inline-flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 font-mono-t text-[9px] uppercase tracking-widest text-emerald-300"
+                title="Cloud sync active"
+              >
+                <Cloud className="h-2.5 w-2.5" /> Cloud
+              </span>
+            )}
           </Link>
 
           {/* Nav */}

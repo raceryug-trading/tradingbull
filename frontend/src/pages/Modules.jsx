@@ -17,6 +17,7 @@ import {
   toggleLessonComplete,
   moduleProgress,
 } from "../lib/store";
+import { useCloudRefresh } from "../lib/useCloudRefresh";
 import { getEmbedUrl, getThumbnail, getYouTubeId } from "../lib/youtube";
 
 const DISMISSED_KEY = "ta_dismissed_ann";
@@ -36,19 +37,23 @@ export default function Modules() {
 
   const session = currentSession();
   const username = session?.username;
+  const cloudVersion = useCloudRefresh();
 
   useEffect(() => {
     const mods = getModules();
     setModules(mods);
     setProgress(username ? getProgress(username) : {});
     setAnnouncements(getAnnouncements());
-    for (const m of mods) {
-      if (m.lessons && m.lessons.length) {
-        setActiveLesson({ moduleTitle: m.title, ...m.lessons[0] });
-        return;
+    if (!activeLesson) {
+      for (const m of mods) {
+        if (m.lessons && m.lessons.length) {
+          setActiveLesson({ moduleTitle: m.title, ...m.lessons[0] });
+          return;
+        }
       }
     }
-  }, [username]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [username, cloudVersion]);
 
   const dismiss = (id) => {
     const next = [...dismissed, id];

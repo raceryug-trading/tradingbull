@@ -1,0 +1,32 @@
+{
+  "summary": "Frontend-only E2E verification of the new optional Firebase cloud-sync layer in localStorage fallback mode (REACT_APP_FIREBASE_* empty) on the public preview URL. All 8 requested scenarios passed: no cloud-sync-indicator on login, no cloud-badge in header, no admin-cloud-indicator in admin console, student login (student/student123) -> modules with video-player-frame, mark-complete-button updates overall-progress-card (0/4 0% -> 1/4 25%) and module-progress-* (1/2), live page offline state, admin login (admin/admin123) -> console, Admin Password tab still shows the legacy localStorage credential form (admin-username-input / admin-password-input / admin-save-credentials-button) with NO 'Managed by Firebase Auth' notice, announcement posting + listing + student-side dismiss, backup tab buttons present and real export download (trading-academy-backup-2026-08-16.json), WhatsApp floating button visible on login/modules/live/admin. Exactly one informational console log '[cloud] Firebase not configured — running in local-only mode (localStorage).' and NO JS/console errors from the new cloud code. Code review confirms firebaseEnabled in lib/firebase.js is computed from apiKey+authDomain+projectId env vars and all cloud calls in store.js are gated behind it.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Modules lesson sidebar", "issues": ["Two seeded lessons reference YouTube IDs whose thumbnails 404 (https://i.ytimg.com/vi/Sn-C_Gj0ZEQ/hqdefault.jpg and /vi/SuTGobDBqe4/hqdefault.jpg) -> broken/blank thumbnails and console 404 noise. Pre-existing seed-data issue, unrelated to cloud sync; consider replacing IDs or adding an onError fallback image."]}
+    ]
+  },
+  "test_report_links": ["/app/test_reports/iteration_3.json"],
+  "action_items": [
+    "No blocking issues. Optional: replace the 2 seeded YouTube video IDs with valid ones (thumbnail 404s).",
+    "Note: `window.__testFbEnabled` does not exist anywhere in src/ — firebaseEnabled is a module-level const evaluated at import time, so the requested 'set window.__testFbEnabled = true' step cannot exercise the Firebase code path. The sanity check was still performed (injected admin ta_session + navigate to /#/admin loads the console fine), and the firebase/firestore/auth imports compile without errors. Real cloud-path validation requires actual Firebase credentials in /app/frontend/.env + restart.",
+    "Optional robustness: startCloudSync's onSnapshot subscriptions have no error callback — a Firestore permission-denied (rules not set) will surface as an unhandled console error and silently stop sync once credentials are added. Add the error handler + a visible toast.",
+    "Optional: cloudSync.js imports updateDoc/serverTimestamp but never uses them (dead imports / lint warnings).",
+    "Optional consistency gap for when Firebase IS enabled: store.saveModules/addLesson/removeLesson write locally and only fan out via cloudSaveModule for add/remove lesson, but updateAdmin() and toggleLessonComplete()/progress are never synced (progress stays per-browser). Confirm this is intentional per the 'sync everything' requirement."
+  ],
+  "critical_code_review_comments": [
+    "lib/firebase.js: firebaseEnabled correctly requires apiKey && authDomain && projectId (appId not required) — verified false with empty env, and no Firebase SDK init occurs, so no network calls or errors in fallback mode.",
+    "App.js cloud effect is properly no-op'd when !firebaseEnabled and cleans up subscribers/auth watcher on unmount.",
+    "Admin.jsx is now ~830 lines (>700) — split SettingsTab/DataTab/AnnouncementsTab into modules."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (static app, no backend by design)", "frontend": "100% (23/23 assertions passed)"},
+  "seed_data_creation": "Browser-local only: test announcement 'TEST_ Cloud Fallback'; localStorage cleared/re-seeded during test. No server state.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "student/student123, admin/admin123 (config.js defaults). /app/memory/test_credentials.md is still effectively empty (headers only) — should be documented there.",
+  "context_for_next_testing_agent": "Fallback (local-only) mode is fully verified. Testids: login-username-input/login-password-input/login-submit-button, portal-switch-student|admin, admin tabs admin-tab-{students|modules|live|announcements|data|settings}, student announcements use student-announcement-{id} / dismiss-announcement-{id} (NOT announcement-*). Reset button uses window.confirm — dismiss the dialog. Once real Firebase creds are added to /app/frontend/.env and frontend restarted, re-test: cloud-sync-indicator, cloud-badge, admin-cloud-indicator, Firebase-managed settings notice, Firestore rules/permission errors, and cross-browser sync.",
+  "rca_of_the_issue": "No defects found in the cloud-sync feature under fallback mode. The only console errors are two YouTube thumbnail 404s from pre-existing seed data."
+}

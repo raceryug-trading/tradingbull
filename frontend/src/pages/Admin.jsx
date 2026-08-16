@@ -14,6 +14,7 @@ import {
   Download,
   Upload,
   RotateCcw,
+  Cloud,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -36,6 +37,7 @@ import {
   importAll,
   resetAll,
 } from "../lib/store";
+import { firebaseEnabled } from "../lib/firebase";
 import { getYouTubeId } from "../lib/youtube";
 
 const TABS = [
@@ -59,8 +61,19 @@ export default function Admin() {
           Control Panel
         </h1>
         <p className="mt-1 text-sm text-gray-400">
-          Manage students, course videos, and live session URL. Changes save instantly to this browser.
+          Manage students, course videos, and live session URL.
+          {firebaseEnabled
+            ? " Cloud sync ON — changes appear on every student's device instantly."
+            : " Changes save instantly to this browser."}
         </p>
+        {firebaseEnabled && (
+          <div
+            data-testid="admin-cloud-indicator"
+            className="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 font-mono-t text-[10px] uppercase tracking-widest text-emerald-300"
+          >
+            <Cloud className="h-3 w-3" /> Cloud Sync Active · Firestore
+          </div>
+        )}
       </div>
 
       {/* Tabs */}
@@ -485,6 +498,32 @@ function SettingsTab() {
     updateAdmin(admin);
     toast.success("Admin credentials updated");
   };
+
+  if (firebaseEnabled) {
+    return (
+      <div className="max-w-md rounded-lg border border-[#232D42] bg-[#111622] p-5">
+        <div className="mb-3 flex items-center gap-2 border-b border-[#232D42] pb-3">
+          <Cloud className="h-4 w-4 text-emerald-400" />
+          <h3 className="font-display text-base font-bold uppercase tracking-wide text-gray-100">
+            Managed by Firebase Auth
+          </h3>
+        </div>
+        <p className="text-sm text-gray-400">
+          Admin credentials are stored in Firebase Authentication, not this
+          browser. To change the admin email or password, open the{" "}
+          <a
+            href="https://console.firebase.google.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-emerald-400 hover:underline"
+          >
+            Firebase Console
+          </a>{" "}
+          → Authentication → Users.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-md rounded-lg border border-[#232D42] bg-[#111622] p-5">

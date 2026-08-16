@@ -56,3 +56,18 @@ Stock market trading course website. No public sign-up. Admin creates username/p
 - P2: Position size / risk calculator widget
 - P2: PDF/notes attachment per lesson
 - P2: Optional cloud sync (Firebase/Supabase) instead of manual JSON
+
+## Iteration 3 (2026-02) — Cloud Sync (Firebase)
+- **Optional Firebase Firestore + Firebase Auth** for real-time sync across all browsers/devices
+- Falls back to localStorage transparently when `REACT_APP_FIREBASE_*` env vars are empty
+- Admin login switches to Firebase Auth email/password when Firebase is configured
+- New files: `frontend/src/lib/firebase.js`, `frontend/src/lib/cloudSync.js`, `frontend/src/lib/useCloudRefresh.js`
+- README updated with 5-step Firebase Console setup + Firestore security rules
+- Data model in Firestore: `academy/main/students/{username}`, `academy/main/modules/{id}`, `academy/main/announcements/{id}`, `academy/main/config` (with live subdoc)
+- Student progress + dismissed announcements remain per-browser (privacy + latency)
+- All iteration 3 tests passed in fallback mode (0 failures). Cloud path requires user's Firebase credentials.
+
+## Remaining Backlog
+- P2: Position size / risk calculator widget
+- P2: PDF/notes attachment per lesson
+- P2: Live countdown to next scheduled session

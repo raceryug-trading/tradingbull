@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import "@/App.css";
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
@@ -9,8 +10,35 @@ import Login from "./pages/Login";
 import Modules from "./pages/Modules";
 import LiveSession from "./pages/LiveSession";
 import Admin from "./pages/Admin";
+import { firebaseEnabled } from "./lib/firebase";
+import { startCloudSync, onCloudAuthChange } from "./lib/cloudSync";
 
 function App() {
+  // Mount cloud subscribers + auth watcher once at app start
+  useEffect(() => {
+    if (!firebaseEnabled) return;
+    const stop = startCloudSync(() => {
+      // Broadcast an event so live pages can re-read localStorage
+      window.dispatchEvent(new Event("ta-cloud-update"));
+    });
+    const off = onCloudAuthChange((user) => {
+      // If admin signs out of Firebase from another tab, clear session
+      if (!user) {
+        const raw = localStorage.getItem("ta_session");
+        if (raw) {
+          try {
+            const s = JSON.parse(raw);
+            if (s?.role === "admin") localStorage.removeItem("ta_session");
+          } catch {}
+        }
+      }
+    });
+    return () => {
+      stop && stop();
+      off && off();
+    };
+  }, []);
+
   return (
     <div className="App min-h-screen">
       {/* HashRouter so it works on GitHub Pages without server rewrites */}

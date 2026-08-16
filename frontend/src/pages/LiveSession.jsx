@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { Radio, Calendar, MessageCircle, AlertCircle } from "lucide-react";
 import { getLive } from "../lib/store";
+import { useCloudRefresh } from "../lib/useCloudRefresh";
 import { getLiveEmbedUrl } from "../lib/youtube";
 import { BRAND } from "../config";
 
 export default function LiveSession() {
   const [live, setLive] = useState({ url: "", title: "", isLive: false });
+  const cloudVersion = useCloudRefresh();
   useEffect(() => {
     setLive(getLive());
-  }, []);
+  }, [cloudVersion]);
 
   const embed = getLiveEmbedUrl(live.url);
   const num = (BRAND.whatsappNumber || "").replace(/[^\d]/g, "");

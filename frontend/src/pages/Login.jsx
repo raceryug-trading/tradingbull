@@ -1,32 +1,64 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Activity, Lock, User, Shield, GraduationCap } from "lucide-react";
+import { Activity, Lock, User, Shield, GraduationCap, Cloud } from "lucide-react";
 import { toast } from "sonner";
 import { loginStudent, loginAdmin } from "../lib/store";
+import { firebaseEnabled } from "../lib/firebase";
+import { cloudLoginAdmin } from "../lib/cloudSync";
 import { BRAND } from "../config";
 
 export default function Login() {
   const [mode, setMode] = useState("student");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!username || !password) {
       toast.error("Enter username and password");
       return;
     }
-    const session =
-      mode === "student"
-        ? loginStudent(username, password)
-        : loginAdmin(username, password);
-    if (!session) {
-      toast.error("Invalid credentials");
-      return;
+    setSubmitting(true);
+    try {
+      if (mode === "student") {
+        const session = loginStudent(username, password);
+        if (!session) {
+          toast.error("Invalid credentials");
+          return;
+        }
+        toast.success(`Welcome, ${session.name}`);
+        navigate("/modules");
+      } else {
+        // Admin login: use Firebase Auth when configured, else localStorage
+        if (firebaseEnabled) {
+          try {
+            const cred = await cloudLoginAdmin(username.trim(), password);
+            const session = {
+              role: "admin",
+              username: cred.user.email,
+              name: "Admin",
+            };
+            localStorage.setItem("ta_session", JSON.stringify(session));
+            toast.success("Admin signed in (cloud)");
+            navigate("/admin");
+          } catch (err) {
+            toast.error("Invalid admin credentials");
+          }
+        } else {
+          const session = loginAdmin(username, password);
+          if (!session) {
+            toast.error("Invalid credentials");
+            return;
+          }
+          toast.success(`Welcome, ${session.name}`);
+          navigate("/admin");
+        }
+      }
+    } finally {
+      setSubmitting(false);
     }
-    toast.success(`Welcome, ${session.name}`);
-    navigate(session.role === "admin" ? "/admin" : "/modules");
   };
 
   return (
@@ -48,12 +80,21 @@ export default function Login() {
               {BRAND.name}
             </h1>
             <p className="mt-1 text-sm text-gray-400">{BRAND.tagline}</p>
+            {firebaseEnabled && (
+              <div
+                data-testid="cloud-sync-indicator"
+                className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-0.5 font-mono-t text-[10px] uppercase tracking-widest text-emerald-300"
+              >
+                <Cloud className="h-3 w-3" /> Cloud Sync Active
+              </div>
+            )}
           </div>
 
           {/* Toggle */}
           <div className="mb-6 grid grid-cols-2 gap-1 rounded-md border border-[#232D42] bg-[#0A0D14] p-1">
             <button
               data-testid="portal-switch-student"
+              type="button"
               onClick={() => setMode("student")}
               className={`flex items-center justify-center gap-1.5 rounded px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-colors ${
                 mode === "student"
@@ -65,6 +106,7 @@ export default function Login() {
             </button>
             <button
               data-testid="portal-switch-admin"
+              type="button"
               onClick={() => setMode("admin")}
               className={`flex items-center justify-center gap-1.5 rounded px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-colors ${
                 mode === "admin"
@@ -79,15 +121,20 @@ export default function Login() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <label className="block">
               <span className="mb-1.5 flex items-center gap-1.5 font-mono-t text-[10px] uppercase tracking-widest text-gray-500">
-                <User className="h-3 w-3" /> Username
+                <User className="h-3 w-3" />
+                {mode === "admin" && firebaseEnabled ? "Admin Email" : "Username"}
               </span>
               <input
                 data-testid="login-username-input"
-                type="text"
+                type={mode === "admin" && firebaseEnabled ? "email" : "text"}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="input-terminal w-full rounded-md px-3 py-2.5 text-sm"
-                placeholder="Enter username"
+                placeholder={
+                  mode === "admin" && firebaseEnabled
+                    ? "admin@yourdomain.com"
+                    : "Enter username"
+                }
                 autoComplete="username"
               />
             </label>
@@ -108,13 +155,18 @@ export default function Login() {
             <button
               data-testid="login-submit-button"
               type="submit"
-              className={`w-full rounded-md py-2.5 text-sm font-bold uppercase tracking-widest transition-colors ${
+              disabled={submitting}
+              className={`w-full rounded-md py-2.5 text-sm font-bold uppercase tracking-widest transition-colors disabled:opacity-60 ${
                 mode === "student"
                   ? "bg-emerald-500 text-[#0A0D14] hover:bg-emerald-400"
                   : "bg-amber-500 text-[#0A0D14] hover:bg-amber-400"
               }`}
             >
-              {mode === "student" ? "Enter Trading Desk" : "Access Admin Console"}
+              {submitting
+                ? "Signing in…"
+                : mode === "student"
+                ? "Enter Trading Desk"
+                : "Access Admin Console"}
             </button>
           </form>
 
@@ -122,8 +174,19 @@ export default function Login() {
             <div className="mb-1 font-mono-t uppercase tracking-widest text-emerald-400">
               Demo Access
             </div>
-            <div className="font-mono-t">Student → <span className="text-gray-300">student / student123</span></div>
-            <div className="font-mono-t">Admin → <span className="text-gray-300">admin / admin123</span></div>
+            <div className="font-mono-t">
+              Student → <span className="text-gray-300">student / student123</span>
+            </div>
+            <div className="font-mono-t">
+              Admin →{" "}
+              {firebaseEnabled ? (
+                <span className="text-gray-300">
+                  Firebase Auth (email / password)
+                </span>
+              ) : (
+                <span className="text-gray-300">admin / admin123</span>
+              )}
+            </div>
           </div>
         </div>
 
