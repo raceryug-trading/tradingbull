@@ -4,7 +4,7 @@ import { Lock, User, Shield, GraduationCap, Cloud } from "lucide-react";
 import { toast } from "sonner";
 import { loginStudent, loginAdmin } from "../lib/store";
 import { firebaseEnabled } from "../lib/firebase";
-import { cloudLoginAdmin } from "../lib/cloudSync";
+import { cloudLoginAdmin, cloudFetchStudent } from "../lib/cloudSync";
 import { BRAND } from "../config";
 import { BullLogo } from "../components/BullLogo";
 
@@ -24,7 +24,21 @@ export default function Login() {
     setSubmitting(true);
     try {
       if (mode === "student") {
-        const session = loginStudent(username, password);
+        let session = loginStudent(username, password);
+        // If the local snapshot hasn't hydrated yet (race on first load with
+        // cloud sync), fall back to a direct Firestore lookup so real students
+        // don't see false "Invalid credentials" errors.
+        if (!session && firebaseEnabled) {
+          const cloudUser = await cloudFetchStudent(username.trim());
+          if (cloudUser && cloudUser.password === password) {
+            session = {
+              role: "student",
+              username: cloudUser.username,
+              name: cloudUser.name || cloudUser.username,
+            };
+            localStorage.setItem("ta_session", JSON.stringify(session));
+          }
+        }
         if (!session) {
           toast.error("Invalid credentials");
           return;
@@ -173,21 +187,27 @@ export default function Login() {
 
           <div className="mt-6 rounded border border-dashed border-[#232D42] p-3 text-[11px] text-gray-500">
             <div className="mb-1 font-mono-t uppercase tracking-widest text-emerald-400">
-              Demo Access
+              Login Access
             </div>
-            <div className="font-mono-t">
-              Student → <span className="text-gray-300">student / student123</span>
-            </div>
-            <div className="font-mono-t">
-              Admin →{" "}
-              {firebaseEnabled ? (
-                <span className="text-gray-300">
-                  Firebase Auth (email / password)
-                </span>
-              ) : (
-                <span className="text-gray-300">admin / admin123</span>
-              )}
-            </div>
+            {firebaseEnabled ? (
+              <>
+                <div className="font-mono-t">
+                  Student → <span className="text-gray-300">Ask your instructor for username & password</span>
+                </div>
+                <div className="font-mono-t">
+                  Admin → <span className="text-gray-300">Firebase Auth (email / password)</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="font-mono-t">
+                  Student → <span className="text-gray-300">student / student123</span>
+                </div>
+                <div className="font-mono-t">
+                  Admin → <span className="text-gray-300">admin / admin123</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
 

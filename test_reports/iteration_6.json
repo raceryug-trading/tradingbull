@@ -1,0 +1,23 @@
+{
+  "summary": "Frontend-only retest of iteration_5 fixes on the preview URL. Verified: (1) race-condition fix — immediate student login (test1/test123) right after page load now SUCCEEDS and navigates to /#/modules via cloudFetchStudent fallback; (2) same login also works after ~8s hydration (no regression); (3) bogus creds (nobody/wrong) still show 'Invalid credentials' and stay on /#/login; (4) hint block now shows 'LOGIN ACCESS' + 'Ask your instructor for username & password' + 'Firebase Auth (email / password)' with NO 'student123'/'admin123'; (5) admin login with a deliberately wrong password shows 'Invalid admin credentials' toast and does not navigate; (6) regression sweep — brand 'Trading Bulls Academy', candlestick logo in header/login card, 4 landing stat cards (400+/4.9/36+/19+), CLOUD sync badges, WhatsApp FAB href https://wa.me/917777930377..., modules page loads YouTube video, 'Mark as watched' progress toggle updates, live session page renders offline state, /#/admin redirects to /#/login when unauthenticated. No Firestore getDoc console errors observed.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "cloudFetchStudent compares plaintext passwords client-side and Firestore 'students' docs must therefore be world-readable to unauthenticated clients — any visitor can dump all student credentials via the Firestore REST/SDK read. Consider moving student auth to Firebase Auth or a server-side check before real use (pre-existing design issue, not a regression).",
+    "Toast for 'Invalid admin credentials' masks the underlying Firebase error code (auth/too-many-requests vs wrong-password); consider surfacing rate-limit case separately."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (not requested)", "frontend": "100% (9/9 scenarios passed)"},
+  "seed_data_creation": "None; used existing Firestore student test1/test123",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": false,
+  "test_credentials": "student test1/test123 works; admin real password not tested (only failure path with wrong password)",
+  "context_for_next_testing_agent": "Race-condition and hint-text fixes are verified fixed. Only transient console noise seen was a one-off Firestore 'Could not reach Cloud Firestore backend' during rapid successive navigations plus an expected 400 from the intentional wrong-password Firebase Auth call. Admin panel CRUD was NOT tested because the admin password may have been rotated by the user (memory file lists Jiga@7312 but it was not exercised).",
+  "rca_of_the_issue": "Previously loginStudent() read only the localStorage snapshot which onSnapshot had not yet hydrated on first load, causing false 'Invalid credentials'. Login.jsx now awaits cloudFetchStudent(username) (direct getDoc) as a fallback when firebaseEnabled, which resolved the race in testing."
+}

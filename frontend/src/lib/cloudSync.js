@@ -4,6 +4,7 @@ import { firebaseEnabled, db, auth } from "./firebase";
 import {
   collection,
   doc,
+  getDoc,
   onSnapshot,
   setDoc,
   deleteDoc,
@@ -82,6 +83,19 @@ export const cloudLogout = () => signOut(auth);
 export const onCloudAuthChange = (cb) => onAuthStateChanged(auth, cb);
 
 export const currentCloudUser = () => auth?.currentUser || null;
+
+// Fetch a single student directly from Firestore — used to bypass the
+// initial-load race where onSnapshot hasn't hydrated localStorage yet.
+export async function cloudFetchStudent(username) {
+  if (!firebaseEnabled || !username) return null;
+  try {
+    const snap = await getDoc(docIn("students", username));
+    return snap.exists() ? snap.data() : null;
+  } catch (e) {
+    console.error("[cloud] fetch student failed:", e);
+    return null;
+  }
+}
 
 // ---------- Students ----------
 export const cloudAddStudent = (s) =>

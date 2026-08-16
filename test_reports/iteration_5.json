@@ -1,0 +1,32 @@
+{
+  "summary": "Frontend-only regression test on preview URL (https://trader-hub-362.preview.emergentagent.com) after candle logo + stats + brand rename + workflow file changes. Verified: landing loads, candlestick BullLogo SVG renders in header/login/hero with no console errors, brand text 'Trading Bulls Academy', CLOUD badge, CLOUD SYNC ACTIVE badge, all 4 stat cards (400+ / 4.9 / 36+ / 19+), WhatsApp FAB href wa.me/917777930377 on landing/login/modules, Firestore real-time sync working (students + modules pulled from cloud), student login (test1/test123) works, modules/lessons/YouTube player/progress render, nav + logout work. BLOCKER: Firebase Admin login fails — identitytoolkit signInWithPassword returns 400 INVALID_LOGIN_CREDENTIALS for raceryug@gmail.com / Jiga@7312, so admin console and the admin->lesson->student cloud round-trip could NOT be tested. Also found a login race condition: logging in within ~2-3s of page load fails ('Invalid credentials') because Firestore snapshot hasn't hydrated ta_students yet.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "Admin login (Firebase Auth)", "issue": "POST https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword returns 400 INVALID_LOGIN_CREDENTIALS for raceryug@gmail.com / Jiga@7312. UI correctly shows 'Invalid admin credentials' toast and stays on /#/login. Credentials in /app/memory/test_credentials.md appear stale or the Firebase Auth user/password changed. Admin panel, lesson creation, and cloud round-trip untestable.", "affected_selectors": ["[data-testid=\"login-submit-button\"]", "[data-testid=\"admin-cloud-indicator\"]"]},
+      {"flow": "Student login immediately after page load", "issue": "Race condition: loginStudent() reads localStorage ta_students synchronously, but Firestore onSnapshot hydration takes ~3-6s. Login attempted before hydration fails with 'Invalid credentials' even for a valid Firestore student (test1/test123). Same attempt succeeds after ~8s wait. Needs a 'syncing cloud data' loading gate / disabled submit until first snapshot, or a direct Firestore query on submit.", "affected_selectors": ["[data-testid=\"login-submit-button\"]", "[data-testid=\"cloud-sync-indicator\"]"]},
+      {"flow": "Seed vs cloud students", "issue": "Documented demo student 'student/student123' no longer exists in Firestore, but the Login page 'DEMO ACCESS' hint still advertises it — misleading for real users.", "affected_selectors": ["[data-testid=\"login-submit-button\"]"]}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Confirm/reset the Firebase Auth admin password for raceryug@gmail.com (verified failing via REST: 400 INVALID_LOGIN_CREDENTIALS) and update /app/memory/test_credentials.md; admin flow is currently unusable with documented creds.",
+    "Gate the login form (loading state / disable submit) until the first Firestore students snapshot arrives, or query Firestore directly on submit — currently a fast login attempt wrongly reports 'Invalid credentials'.",
+    "Update or remove the hardcoded 'Student -> student / student123' DEMO ACCESS hint on Login page since that student no longer exists in Firestore.",
+    "Security: Firestore rules allow unauthenticated READ of academy/main/students including plaintext passwords (verified via REST with the public API key). Writes are correctly denied (403). Consider hashing or moving student auth server-side."
+  ],
+  "critical_code_review_comments": [
+    "lib/store.js loginStudent() is purely localStorage-based; in cloud mode there is no await on cloud hydration -> nondeterministic login failures.",
+    "Student passwords stored in plaintext in a publicly readable Firestore collection."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (frontend-only request)", "frontend": "80% (8/10 checks passed; admin auth blocked, login race condition)"},
+  "seed_data_creation": "None created. No test data left behind (unauthenticated Firestore write attempt was denied 403; no doc created).",
+  "should_call_test_agent_after_fix": true,
+  "should_main_agent_self_test": false,
+  "test_credentials": "Admin raceryug@gmail.com / Jiga@7312 REJECTED by Firebase Auth. Working Firestore students: test1/test123, jigar1/yug.racer, qabot/qabot123 (must wait ~5s after page load before submitting).",
+  "context_for_next_testing_agent": "Preview URL works; Firebase cloud mode is initialized (CLOUD SYNC ACTIVE + CLOUD badge present, Firestore Listen channel 200). Logo/stats/rename regression all clean. Before any login, wait >=5s after page load for Firestore hydration. Admin console still untested due to invalid admin credentials — retest admin add-lesson -> student sync once credentials are fixed. GitHub Pages URL intentionally not tested.",
+  "rca_of_the_issue": "Admin login: Firebase Auth server rejects the given email/password (400 INVALID_LOGIN_CREDENTIALS) — app code path in Login.jsx/cloudSync.cloudLoginAdmin is correct, the credential itself is invalid. Student login flakiness: startCloudSync writes Firestore students into localStorage asynchronously while loginStudent reads localStorage synchronously, so early submissions see an empty/stale student list."
+}
