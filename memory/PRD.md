@@ -71,3 +71,9 @@ Stock market trading course website. No public sign-up. Admin creates username/p
 - P2: Position size / risk calculator widget
 - P2: PDF/notes attachment per lesson
 - P2: Live countdown to next scheduled session
+
+## Cloud Sync — LIVE (verified 2026-02)
+- User provided Firebase config for project `trading-bulls-e3389`. Values written to /app/frontend/.env
+- User completed Firebase Console setup: Email/Password auth, admin user created, Firestore DB, security rules published
+- E2E test (iteration_4.json): 13/13 flows PASSED including admin login, invalid-credential toast, Firestore CRUD via UI (student/module/lesson/announcement/live), cross-session persistence after localStorage wipe, and Firebase-managed Admin Password notice.
+- Cloud sync fully working. Admin credentials in test_credentials.md.

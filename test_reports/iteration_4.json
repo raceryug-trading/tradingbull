@@ -1,0 +1,30 @@
+{
+  "summary": "Frontend-only verification of REAL Firebase cloud sync (project trading-bulls-e3389) via Playwright at http://localhost:3000/#/. Verified cloud indicators (cloud-sync-indicator, cloud-badge, admin-cloud-indicator), Firebase Auth admin login (raceryug@gmail.com) with success toast 'Admin signed in (cloud)' + redirect to /#/admin, invalid-credential handling ('Invalid admin credentials' toast, stays on /#/login), Admin Password tab showing 'Managed by Firebase Auth' notice with Firebase Console link (old admin-username-input/admin-password-input absent), Firestore writes for student/announcement/module/lesson/live, student-side reads after simulated fresh browser (wiped all non-firebase: localStorage keys), and logout clearing ta_session. All 13 requested flows PASSED. No Firebase permission-denied errors observed. All test data created (student qabot, module 'QA Module' + lesson 'QA Lesson', announcement 'QA Test Announcement') was deleted via the admin UI afterwards; deletions also propagated through Firestore subscriptions.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Student Live page", "issues": ["Embedded live iframe (jfKfPfyJRdk) renders YouTube's 'This live stream recording is not available' inside the player in this headless/geo environment - iframe and On Air badge are correct, so this is environmental, not a code defect"]}
+    ]
+  },
+  "test_report_links": ["/app/test_reports/iteration_4.json"],
+  "action_items": [
+    "Restore intended Live Session settings: testing left ta_live/Firestore config as url=https://www.youtube.com/watch?v=jfKfPfyJRdk, title='QA Live Session', isLive=true (original URL/title were overwritten during the required live test).",
+    "Populate /app/memory/test_credentials.md with the Firebase admin email/password and student demo creds - the file currently contains only the header comments, forcing testing agents to rely on the request payload.",
+    "Optional: surface a UI banner when Firestore reports [code=unavailable] (seen once transiently at startup: 'Could not reach Cloud Firestore backend ... client will operate in offline mode'), so users know data may be stale."
+  ],
+  "critical_code_review_comments": [
+    "cloudSync writes (cloudAddStudent/cloudSaveModule/cloudAddAnnouncement/cloudUpdateLive) have no .catch handlers at some call sites - a rules/permission failure would fail silently after the optimistic local write; consider surfacing an error toast on rejected Firestore writes.",
+    "Student passwords are stored in plaintext in the publicly-readable Firestore 'students' collection (rules allow public reads) and are rendered in the admin table - anyone with the project config can enumerate student credentials. Recommend moving student auth to Firebase Auth or at minimum restricting reads.",
+    "Admin.jsx is ~830 lines; consider splitting each tab into its own component file per the >700-line guideline."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (frontend-only request)", "frontend": "100% (13/13 requested flows passed)"},
+  "seed_data_creation": "Created and then deleted: student qabot/qabot123 (QA Bot), module 'QA Module' with lesson 'QA Lesson' (dQw4w9WgXcQ), announcement 'QA Test Announcement' (alert tone). Pre-existing Firestore data left untouched: students jigar1/rahul/test1, announcement 'Cloud sync test', modules Risk Management & Psychology of Trading. No 'Reset All Data' dialog was ever confirmed.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "Admin (Firebase Auth): raceryug@gmail.com / Jiga@7312 (verified working). Student demo: student/student123. /app/memory/test_credentials.md is empty - should be filled in.",
+  "context_for_next_testing_agent": "Firebase is live and reachable from this container; Firestore subscriptions repopulate ta_students/ta_modules/ta_announcements/ta_live within ~3-5s of load, so allow >=4s waits after each write before asserting. Note that rendered text is CSS-uppercased in many components - use case-insensitive assertions. Admin tab testids: admin-tab-students|content|live|announcements|data|settings ('content' not 'modules'). Live toggle button label shows the CURRENT state (Broadcasting/Offline) - read it before clicking to avoid flipping live off.",
+  "rca_of_the_issue": "No defects found. Two initially-'failed' assertions were test-script artifacts: (1) toast text checks failed with long waits because sonner auto-dismisses (~4s) - fixed with polling; (2) 'Managed by Firebase Auth' and 'QA Module' text checks failed due to CSS text-transform:uppercase - fixed with case-insensitive comparison."
+}
