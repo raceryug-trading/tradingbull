@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { TrendingUp, LineChart, Radio, ShieldCheck, ArrowRight, Users, Star, Layers, BookOpen } from "lucide-react";
-import { BRAND, STATS } from "../config";
+import { TrendingUp, LineChart, Radio, ShieldCheck, ArrowRight, Users, Star, Layers, BookOpen, Quote, CheckCircle2, Lock } from "lucide-react";
+import { BRAND, STATS, CURRICULUM, TESTIMONIALS } from "../config";
 import MarketTicker from "../components/MarketTicker";
 import { BullLogo } from "../components/BullLogo";
 
@@ -107,6 +107,70 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Curriculum Preview */}
+      <section className="border-y border-[#232D42] bg-[#0A0D14]/60">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+          <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <div className="font-mono-t text-[10px] uppercase tracking-[0.3em] text-emerald-400">
+                Full Curriculum
+              </div>
+              <h2 className="mt-2 font-display text-2xl sm:text-3xl lg:text-4xl font-bold uppercase tracking-tight text-gray-100">
+                {STATS.modules} Modules · {STATS.topics} Topics
+              </h2>
+              <p className="mt-2 max-w-xl text-sm text-gray-400">
+                From your very first candlestick to executing options strategies live. Every module unlocks progressively inside the trading terminal.
+              </p>
+            </div>
+            <Link
+              to="/login"
+              data-testid="curriculum-login-btn"
+              className="hidden sm:inline-flex items-center gap-2 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-xs font-bold uppercase tracking-widest text-emerald-300 hover:bg-emerald-500/20"
+            >
+              <Lock className="h-3.5 w-3.5" /> Log in to unlock
+            </Link>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-testid="curriculum-grid">
+            {CURRICULUM.map((m, i) => (
+              <CurriculumCard key={m.title} index={i + 1} module={m} />
+            ))}
+          </div>
+
+          <div className="mt-8 rounded-lg border border-dashed border-[#232D42] bg-[#111622]/60 p-4 text-center">
+            <p className="font-mono-t text-[11px] uppercase tracking-[0.2em] text-gray-500">
+              Every module includes recorded video lessons + weekly live Q&amp;A on YouTube.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+        <div className="mb-10 text-center">
+          <div className="font-mono-t text-[10px] uppercase tracking-[0.3em] text-amber-400">
+            What Traders Say
+          </div>
+          <h2 className="mt-2 font-display text-2xl sm:text-3xl lg:text-4xl font-bold uppercase tracking-tight text-gray-100">
+            {STATS.rating} average from {STATS.enrollments} traders
+          </h2>
+          <div className="mt-3 flex items-center justify-center gap-1">
+            {[1, 2, 3, 4, 5].map((n) => (
+              <Star key={n} className="h-4 w-4 fill-amber-400 text-amber-400" />
+            ))}
+            <span className="ml-2 font-mono-t text-[11px] uppercase tracking-widest text-gray-400">
+              Verified reviews
+            </span>
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-testid="testimonials-grid">
+          {TESTIMONIALS.map((t, i) => (
+            <TestimonialCard key={t.name} t={t} accent={i % 3} />
+          ))}
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
         <div className="rounded-lg border border-emerald-500/30 bg-gradient-to-br from-[#111622] to-[#0A0D14] p-8 sm:p-12 text-center">
@@ -178,6 +242,73 @@ const Feature = ({ icon: Icon, title, text }) => (
     <p className="mt-2 text-sm text-gray-400 leading-relaxed">{text}</p>
   </div>
 );
+
+const CurriculumCard = ({ index, module }) => (
+  <div
+    data-testid="curriculum-card"
+    className="card-lift group relative overflow-hidden rounded-lg border border-[#232D42] bg-[#111622] p-4"
+  >
+    <div className="flex items-start gap-3">
+      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded border border-emerald-500/40 bg-emerald-500/10 font-mono-t text-[11px] font-bold text-emerald-400">
+        {String(index).padStart(2, "0")}
+      </div>
+      <div className="min-w-0 flex-1">
+        <h4 className="font-display text-base font-bold uppercase tracking-wide text-gray-100 leading-tight">
+          {module.title}
+        </h4>
+        <ul className="mt-2 space-y-1">
+          {module.topics.map((t) => (
+            <li key={t} className="flex items-start gap-1.5 text-[13px] text-gray-400">
+              <CheckCircle2 className="mt-0.5 h-3 w-3 flex-shrink-0 text-emerald-400/70" />
+              <span>{t}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+    <div className="absolute right-0 top-0 h-16 w-16 rounded-bl-full bg-emerald-500/5 opacity-0 transition-opacity group-hover:opacity-100" />
+  </div>
+);
+
+const TestimonialCard = ({ t, accent = 0 }) => {
+  const accents = [
+    "before:bg-emerald-500",
+    "before:bg-amber-500",
+    "before:bg-emerald-400",
+  ];
+  const initial = t.name.split(" ").map((n) => n[0]).slice(0, 2).join("");
+  return (
+    <div
+      data-testid="testimonial-card"
+      className={`card-lift relative overflow-hidden rounded-lg border border-[#232D42] bg-[#111622] p-6 before:absolute before:left-0 before:top-0 before:h-full before:w-1 ${accents[accent]}`}
+    >
+      <Quote className="h-5 w-5 text-gray-600" />
+      <p className="mt-3 text-sm text-gray-200 leading-relaxed">"{t.quote}"</p>
+
+      <div className="mt-5 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full border border-emerald-500/40 bg-emerald-500/10 font-display text-sm font-bold text-emerald-400">
+            {initial}
+          </div>
+          <div>
+            <div className="font-semibold text-gray-100 leading-tight">{t.name}</div>
+            <div className="mt-0.5 font-mono-t text-[10px] uppercase tracking-widest text-gray-500">
+              {t.role}
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-0.5">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <Star
+              key={n}
+              className={`h-3.5 w-3.5 ${n <= t.stars ? "fill-amber-400 text-amber-400" : "text-gray-700"}`}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const MockChart = () => {
   // Simple SVG mock candles

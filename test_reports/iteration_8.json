@@ -1,0 +1,26 @@
+{
+  "summary": "Frontend-only verification of the two new landing page sections (Curriculum Preview + Testimonials Wall) on the preview URL, plus regression of existing landing/login/modules flow. All requested checks passed: 19 curriculum-card items numbered 01-19 with correct titles, 38 topic <li> items, 'FULL CURRICULUM' label + '19+ MODULES · 36+ TOPICS' heading, 'LOG IN TO UNLOCK' link (href #/login) navigating to /#/login; testimonials heading '4.9 AVERAGE FROM 400+ TRADERS' with 5 amber stars and 'Verified reviews', 6 testimonial-card items with alternating emerald-500 / amber-500 / emerald-400 left accents, initials avatars, names/roles and correct star counts (5 x 5-star, Karthik Reddy 4-star). Existing features intact: brand, candlestick logo, 4 stat cards (400+/4.9/36+/19+), market ticker, mock chart terminal, features grid, CTA, 2 WhatsApp links, login page cloud-sync-indicator = 'CLOUD SYNC ACTIVE'. Full round trip: curriculum-login-btn -> /#/login -> login as test1/test123 -> /#/modules with cloud modules (Risk Management, Psychology of Trading) rendered. No console errors, no pageerrors, no horizontal overflow at 1920x900 or 390x844.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Landing - Curriculum Preview (mobile 390px)", "issues": ["'Log in to unlock' CTA is hidden below sm breakpoint (class 'hidden sm:inline-flex'), so mobile visitors have no unlock CTA in this section (bottom CTA still available) - cosmetic/intentional?"]},
+      {"screen": "Landing - between curriculum and testimonials (mobile)", "issues": ["Noticeable large vertical gap (stacked section paddings) between the curriculum footer note and testimonials heading on narrow viewports - minor spacing polish"]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "STATS.topics ('36+') is hardcoded while CURRICULUM now yields 38 topics; consider deriving from CURRICULUM.flatMap(m=>m.topics).length to avoid drift when the user edits config.js.",
+    "CurriculumCard/TestimonialCard use m.title / t.name as React keys - duplicate titles or names added later by the user would break rendering; prefer index or an explicit id."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (frontend-only request)", "frontend": "100%"},
+  "seed_data_creation": "none",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": false,
+  "test_credentials": "student test1 / test123 (Firestore) - works; login redirects to /#/modules",
+  "context_for_next_testing_agent": "Preview URL navigation with wait_until='networkidle' times out (ticker animation / dev socket keeps connections open) - use 'domcontentloaded' + timeout instead. Login submit testid is 'login-submit-button' (not -btn). Landing testids: curriculum-grid, curriculum-card, curriculum-login-btn, testimonials-grid, testimonial-card, stat-enrollments/rating/topics/modules, cta-login-btn, whatsapp-floating-button.",
+  "rca_of_the_issue": "No defects found; only two cosmetic/robustness observations noted above."
+}
