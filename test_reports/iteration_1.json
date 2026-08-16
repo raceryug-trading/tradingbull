@@ -1,0 +1,29 @@
+{
+  "summary": "First-finish frontend smoke test for the static Trading Academy React app. Verified landing, WhatsApp floating button, login (student & admin), modules + lesson iframe, live session (offline/on-air), protected routes, admin CRUD (students/modules/lessons/live URL/credentials), invalid login, duplicate username handling, invalid YouTube URL toast, and unknown-route fallback. All primary flows work.",
+  "tested_scope": ["frontend", "integration"],
+  "passed": [
+    "Landing page loads with brand 'Your Trading Academy' and market ticker",
+    "WhatsApp floating button visible on landing/login/modules/live/admin with href starting https://wa.me/",
+    "Login page shows Student and Admin portal tabs",
+    "Student login (student/student123) redirects to /#/modules",
+    "Modules page shows 3+ module-card-item items; clicking lesson-item-button loads video-player-frame iframe",
+    "Header shows nav-modules-link and nav-live-session-link for student; nav-admin-link hidden",
+    "Live page shows live-stream-status-badge = Offline and 'no live session' state by default",
+    "nav-logout-button clears session and redirects to /#/login",
+    "Protected /#/admin redirects to /#/login when unauthenticated",
+    "Admin login (admin/admin123) redirects to /#/admin",
+    "Admin Students tab: add student (fill 3 inputs + admin-add-student-button) appears in admin-students-table; remove works",
+    "Duplicate student username is rejected (only 1 'student' row remains)",
+    "Admin Content tab: add module + add lesson with valid YouTube URL works; invalid URL triggers YouTube error toast",
+    "Admin Live tab: paste URL + toggle live + update saves; student sees live-embed-frame with 'On Air' badge",
+    "Admin Settings tab: change admin username/password, re-login with new creds succeeds",
+    "Invalid login (wrong/wrong) stays on /#/login",
+    "/#/nonexistent redirects to landing /#/"
+  ],
+  "failed": [],
+  "action_items": [],
+  "success_rate": {"backend": "N/A (static app, no backend by design)", "frontend": "100%"},
+  "retest_needed": false,
+  "full_testing_deferred": true,
+  "notes": "Initial test script assumed a separate submit button for add-student; actual UX fills the inputs on the tab and uses admin-add-student-button directly. Retest confirmed all admin flows work. No blockers."
+}

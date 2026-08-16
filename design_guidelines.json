@@ -1,0 +1,121 @@
+{
+  "project_name": "Your Trading Academy",
+  "archetype": "THE PERFORMANCE PRO / TERMINAL FINTECH",
+  "context_type": "Static Web App (GitHub Pages compatible)",
+  "design_philosophy": {
+    "core": "Bloomberg Terminal energy meets modern EdTech. High density, tactical clarity, zero fluff, sharp typography, deep charcoal/obsidian surfaces with emerald green and gold ticker accents.",
+    "anti_patterns_avoided": [
+      "No purple gradients or standard SaaS blue",
+      "No generic soft light cards with grey borders",
+      "No missing data-testid attributes",
+      "No full-screen dark blankets overlaying illegible text",
+      "No native select elements or transparent headers without blur background"
+    ]
+  },
+  "typography": {
+    "heading_font": "Barlow Condensed / JetBrains Mono / Outfit",
+    "body_font": "Inter / System Sans",
+    "mono_font": "JetBrains Mono / Fira Code",
+    "hierarchy": {
+      "h1": "text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight uppercase",
+      "h2": "text-2xl sm:text-3xl font-bold tracking-tight",
+      "h3": "text-xl sm:text-2xl font-semibold",
+      "h4": "text-lg font-medium",
+      "body": "text-sm sm:text-base leading-relaxed",
+      "label_ticker": "font-mono text-xs uppercase tracking-widest text-emerald-400"
+    }
+  },
+  "colors": {
+    "theme": "Dark Terminal Mode (Default)",
+    "palette": {
+      "background_primary": "#0A0D14",
+      "background_surface": "#111622",
+      "background_card": "#161D2F",
+      "background_card_hover": "#1E273D",
+      "border": "#232D42",
+      "border_accent": "#10B981",
+      "text_primary": "#F3F4F6",
+      "text_secondary": "#9CA3AF",
+      "text_muted": "#6B7280",
+      "accent_emerald": "#10B981",
+      "accent_emerald_glow": "rgba(16, 185, 129, 0.2)",
+      "accent_gold": "#F59E0B",
+      "accent_red": "#EF4444",
+      "accent_blue": "#3B82F6",
+      "whatsapp_brand": "#25D366"
+    }
+  },
+  "layout_and_spacing": {
+    "spacing_scale": "p-2, p-4, p-6, p-8, p-12",
+    "border_radius": "rounded-none or rounded-md (sharp/tactical terminal feel)",
+    "container_max_width": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+    "bento_grid_rules": "High density grid. Sidebar list with active lesson player + tabbed notes/resources."
+  },
+  "key_components_design": {
+    "header": {
+      "style": "Sticky top bar with backdrop-blur-md bg-[#0A0D14]/90 border-b border-[#232D42] z-40",
+      "elements": [
+        "Brand Logo with glowing candlestick icon",
+        "Live Market Ticker ribbon (NIFTY/S&P/NASDAQ simulation bar)",
+        "Live Session Status indicator with pulsing red badge when LIVE",
+        "Navigation Tabs (Modules, Live Session, Trading Calculators, Admin)",
+        "Student Profile badge with fast Logout trigger"
+      ]
+    },
+    "whatsapp_floating_button": {
+      "position": "fixed bottom-6 right-6 z-50",
+      "style": "bg-[#25D366] text-black hover:bg-[#20bd5a] font-semibold px-4 py-3 rounded-full shadow-lg shadow-emerald-900/40 flex items-center gap-2 transition-transform hover:scale-105 active:scale-95 cursor-pointer",
+      "data_testid": "whatsapp-floating-button"
+    },
+    "login_card": {
+      "style": "bg-[#111622] border border-[#232D42] p-8 rounded-lg shadow-2xl relative overflow-hidden backdrop-blur-sm",
+      "elements": [
+        "Tactical terminal header with glow border",
+        "Toggle tab between Student Portal & Admin Console",
+        "Pre-filled quick demo accounts helper badges for easy access testing"
+      ]
+    },
+    "course_player": {
+      "style": "bg-[#0A0D14] border border-[#232D42] rounded-lg p-4 space-y-4",
+      "video_aspect": "aspect-video rounded border border-[#232D42] overflow-hidden bg-black relative"
+    },
+    "admin_panel": {
+      "style": "Tabbed management matrix with dark table grid, instant localStorage persistence, modal dialogs for adding students, editing YouTube video embeds, and updating YouTube Live URL"
+    }
+  },
+  "media_assets": {
+    "hero_chart_bg": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA3MDR8MHwxfHNlYXJjaHxfX3N0b2NrJTIwbWFya2V0JTIwY2hhcnRzJTIwZGFyayUyMHRoZW1lJTIwc2NyZWVufGVufDB8fHx8MTc4Njg4NTk0N3ww&ixlib=rb-4.1.0&q=85",
+    "trader_desk_bg": "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA3MDR8MHwxfHNlYXJjaHwyfHxzdG9jayUyMG1hcmtldCUyMHRyYWRpbmclMjBjaGFydHMlMjBkYXJrJTIwdGhlbWUlIHNjcmVlbnxlbnwwfHx8fDE3ODY4ODU5NDd8MA&ixlib=rb-4.1.0&q=85",
+    "instructor_avatar": "https://images.unsplash.com/flagged/photo-1579225818168-858da8667fae?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDZ8MHwxfHNlYXJjaHw0fHxmaW5hbmNpYWwlMjBhbmFseXN0JTIwdHJhZGVyJTIwbGFwdG9wJTIwZGFyayUyMGJhY2tncm91bmR8ZW58MHx8fHwxNzg2ODg1OTU4fDA&ixlib=rb-4.1.0&q=85"
+  },
+  "testing_and_data_ids": {
+    "rule": "ALL interactive and key informational elements MUST include a data-testid attribute in kebab-case",
+    "required_test_ids": [
+      "login-username-input",
+      "login-password-input",
+      "login-submit-button",
+      "portal-switch-admin",
+      "portal-switch-student",
+      "nav-modules-link",
+      "nav-live-session-link",
+      "nav-admin-link",
+      "nav-logout-button",
+      "whatsapp-floating-button",
+      "video-player-frame",
+      "module-card-item",
+      "lesson-item-button",
+      "live-stream-status-badge",
+      "admin-add-student-button",
+      "admin-add-video-button",
+      "admin-update-live-url-button"
+    ]
+  },
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "No sign-up option in public flow as requested. Admin manages student credentials in client localStorage.",
+    "Static site architecture compatible with GitHub Pages deployment (no backend API dependency).",
+    "Default student and admin accounts initialized in localStorage on first load for zero-friction evaluation.",
+    "All video embeds and live session links use standard YouTube embed iframe format with regex sanitizer for short/full YouTube URLs.",
+    "Persistent WhatsApp Floating Button present on every view with pre-filled message support.",
+    "Rich dark financial terminal look: glowing status badges, live market ticker ribbon, lesson progress tracking, and position size calculator helper widget."
+  ]
+}
