@@ -74,3 +74,13 @@ export const DEFAULT_LIVE = {
   title: "Weekly Market Outlook",
   isLive: false,
 };
+
+export const DEFAULT_ANNOUNCEMENTS = [
+  {
+    id: "ann-1",
+    title: "Welcome to Your Trading Academy",
+    body: "Check the Live Session tab every weekend for our market outlook.",
+    tone: "info",
+    createdAt: new Date().toISOString(),
+  },
+];

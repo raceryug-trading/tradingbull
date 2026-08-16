@@ -44,3 +44,15 @@ Stock market trading course website. No public sign-up. Admin creates username/p
 - Lesson progress marks
 - Position size calculator
 - Notice board / announcements
+
+## Iteration 2 (2026-02) — Follow-up features
+- **Content Sync (Backup & Sync tab)**: Export full state as JSON, Import from JSON file, Reset to defaults
+- **Progress Tracking**: Per-student lesson completion, overall + per-module progress bars, checkmarks in sidebar
+- **Announcements Board**: Admin can post/remove announcements with tone (info/warn/alert); students see them on Modules page and can dismiss individually (persists in localStorage)
+- New store functions: getAnnouncements, addAnnouncement, removeAnnouncement, getProgress, toggleLessonComplete, moduleProgress, exportAll, importAll, resetAll
+- All iteration 2 tests passed (0 failures)
+
+## Remaining Backlog
+- P2: Position size / risk calculator widget
+- P2: PDF/notes attachment per lesson
+- P2: Optional cloud sync (Firebase/Supabase) instead of manual JSON

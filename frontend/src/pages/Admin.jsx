@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Users,
   Video,
@@ -9,6 +9,11 @@ import {
   Save,
   CheckCircle2,
   XCircle,
+  Megaphone,
+  Database,
+  Download,
+  Upload,
+  RotateCcw,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -24,6 +29,12 @@ import {
   updateLive,
   getAdmin,
   updateAdmin,
+  getAnnouncements,
+  addAnnouncement,
+  removeAnnouncement,
+  exportAll,
+  importAll,
+  resetAll,
 } from "../lib/store";
 import { getYouTubeId } from "../lib/youtube";
 
@@ -31,6 +42,8 @@ const TABS = [
   { id: "students", label: "Students", icon: Users },
   { id: "content", label: "Videos & Modules", icon: Video },
   { id: "live", label: "Live Session", icon: Radio },
+  { id: "announcements", label: "Announcements", icon: Megaphone },
+  { id: "data", label: "Backup & Sync", icon: Database },
   { id: "settings", label: "Admin Password", icon: KeyRound },
 ];
 
@@ -76,6 +89,8 @@ export default function Admin() {
       {tab === "students" && <StudentsTab />}
       {tab === "content" && <ContentTab />}
       {tab === "live" && <LiveTab />}
+      {tab === "announcements" && <AnnouncementsTab />}
+      {tab === "data" && <DataTab />}
       {tab === "settings" && <SettingsTab />}
     </div>
   );
@@ -519,5 +534,259 @@ function Field({ label, children }) {
       </span>
       {children}
     </label>
+  );
+}
+
+function AnnouncementsTab() {
+  const [list, setList] = useState([]);
+  const [form, setForm] = useState({ title: "", body: "", tone: "info" });
+  useEffect(() => setList(getAnnouncements()), []);
+
+  const submit = (e) => {
+    e.preventDefault();
+    if (!form.title || !form.body) return toast.error("Title and message required");
+    setList(addAnnouncement(form));
+    setForm({ title: "", body: "", tone: "info" });
+    toast.success("Announcement posted");
+  };
+
+  const remove = (id) => {
+    setList(removeAnnouncement(id));
+    toast.success("Removed");
+  };
+
+  const toneStyles = {
+    info: "border-emerald-500/40 bg-emerald-500/5 text-emerald-300",
+    alert: "border-red-500/40 bg-red-500/5 text-red-300",
+    warn: "border-amber-500/40 bg-amber-500/5 text-amber-300",
+  };
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-3">
+      <form
+        onSubmit={submit}
+        className="rounded-lg border border-[#232D42] bg-[#111622] p-5 space-y-3"
+      >
+        <div className="flex items-center gap-2 border-b border-[#232D42] pb-3">
+          <Megaphone className="h-4 w-4 text-amber-400" />
+          <h3 className="font-display text-base font-bold uppercase tracking-wide text-gray-100">
+            Post Announcement
+          </h3>
+        </div>
+        <Field label="Tone">
+          <div className="flex gap-1 rounded-md border border-[#232D42] bg-[#0A0D14] p-1">
+            {["info", "warn", "alert"].map((t) => (
+              <button
+                key={t}
+                type="button"
+                data-testid={`ann-tone-${t}`}
+                onClick={() => setForm({ ...form, tone: t })}
+                className={`flex-1 rounded px-2 py-1.5 text-[10px] font-bold uppercase tracking-widest ${
+                  form.tone === t
+                    ? t === "alert"
+                      ? "bg-red-500 text-white"
+                      : t === "warn"
+                      ? "bg-amber-500 text-[#0A0D14]"
+                      : "bg-emerald-500 text-[#0A0D14]"
+                    : "text-gray-400"
+                }`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+        </Field>
+        <Field label="Title *">
+          <input
+            data-testid="admin-announcement-title-input"
+            value={form.title}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
+            className="input-terminal w-full rounded px-3 py-2 text-sm"
+            placeholder="e.g. NIFTY breakout at 22,500"
+          />
+        </Field>
+        <Field label="Message *">
+          <textarea
+            data-testid="admin-announcement-body-input"
+            value={form.body}
+            onChange={(e) => setForm({ ...form, body: e.target.value })}
+            rows={4}
+            className="input-terminal w-full rounded px-3 py-2 text-sm"
+            placeholder="Full message shown to students on the modules page"
+          />
+        </Field>
+        <button
+          data-testid="admin-post-announcement-button"
+          type="submit"
+          className="w-full rounded-md bg-amber-500 py-2.5 text-sm font-bold uppercase tracking-widest text-[#0A0D14] hover:bg-amber-400 transition-colors"
+        >
+          Post to Students
+        </button>
+      </form>
+
+      <div className="lg:col-span-2 rounded-lg border border-[#232D42] bg-[#111622] p-5">
+        <div className="mb-3 flex items-center justify-between border-b border-[#232D42] pb-3">
+          <h3 className="font-display text-base font-bold uppercase tracking-wide text-gray-100">
+            Active Announcements
+          </h3>
+          <span className="font-mono-t text-xs text-gray-500">{list.length} total</span>
+        </div>
+        {list.length === 0 ? (
+          <p className="py-8 text-center text-sm text-gray-500">No announcements posted yet.</p>
+        ) : (
+          <ul className="space-y-3" data-testid="admin-announcements-list">
+            {list.map((a) => (
+              <li
+                key={a.id}
+                className={`flex items-start gap-3 rounded-md border p-3 ${
+                  toneStyles[a.tone] || toneStyles.info
+                }`}
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono-t text-[10px] uppercase tracking-widest opacity-70">
+                      {a.tone}
+                    </span>
+                    <span className="font-mono-t text-[10px] text-gray-500">
+                      {new Date(a.createdAt).toLocaleString()}
+                    </span>
+                  </div>
+                  <h4 className="mt-1 text-sm font-semibold text-gray-100">{a.title}</h4>
+                  <p className="mt-1 text-sm text-gray-300 whitespace-pre-wrap">{a.body}</p>
+                </div>
+                <button
+                  data-testid={`admin-remove-announcement-${a.id}`}
+                  onClick={() => remove(a.id)}
+                  className="rounded border border-[#232D42] p-1.5 text-red-400 hover:border-red-500 transition-colors"
+                  aria-label="Remove announcement"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function DataTab() {
+  const fileRef = useRef(null);
+
+  const handleExport = () => {
+    const data = exportAll();
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `trading-academy-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Backup downloaded");
+  };
+
+  const handleImport = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(String(ev.target.result));
+        importAll(data);
+        toast.success("Backup restored. Reloading…");
+        setTimeout(() => window.location.reload(), 700);
+      } catch (err) {
+        toast.error("Invalid backup file: " + err.message);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
+
+  const handleReset = () => {
+    if (!window.confirm("Reset ALL data to defaults? This cannot be undone."))
+      return;
+    resetAll();
+    toast.success("Reset complete. Reloading…");
+    setTimeout(() => window.location.reload(), 700);
+  };
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-2">
+      <div className="rounded-lg border border-[#232D42] bg-[#111622] p-5">
+        <div className="mb-3 flex items-center gap-2 border-b border-[#232D42] pb-3">
+          <Download className="h-4 w-4 text-emerald-400" />
+          <h3 className="font-display text-base font-bold uppercase tracking-wide text-gray-100">
+            Export Backup
+          </h3>
+        </div>
+        <p className="text-sm text-gray-400">
+          Downloads a JSON file with all students, modules, videos, live URL, admin
+          credentials, and announcements. Use it to move data between browsers or
+          devices, or as a safety backup.
+        </p>
+        <button
+          data-testid="admin-export-json-button"
+          onClick={handleExport}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-md bg-emerald-500 py-2.5 text-sm font-bold uppercase tracking-widest text-[#0A0D14] hover:bg-emerald-400 transition-colors"
+        >
+          <Download className="h-4 w-4" /> Download Backup JSON
+        </button>
+      </div>
+
+      <div className="rounded-lg border border-[#232D42] bg-[#111622] p-5">
+        <div className="mb-3 flex items-center gap-2 border-b border-[#232D42] pb-3">
+          <Upload className="h-4 w-4 text-amber-400" />
+          <h3 className="font-display text-base font-bold uppercase tracking-wide text-gray-100">
+            Import Backup
+          </h3>
+        </div>
+        <p className="text-sm text-gray-400">
+          Upload a previously exported JSON. Existing data on this browser will be
+          overwritten.
+        </p>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="application/json,.json"
+          onChange={handleImport}
+          className="hidden"
+          data-testid="admin-import-json-input"
+        />
+        <button
+          data-testid="admin-import-json-button"
+          onClick={() => fileRef.current?.click()}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-md bg-amber-500 py-2.5 text-sm font-bold uppercase tracking-widest text-[#0A0D14] hover:bg-amber-400 transition-colors"
+        >
+          <Upload className="h-4 w-4" /> Choose Backup File
+        </button>
+      </div>
+
+      <div className="lg:col-span-2 rounded-lg border border-red-500/30 bg-red-500/5 p-5">
+        <div className="mb-3 flex items-center gap-2 border-b border-red-500/20 pb-3">
+          <RotateCcw className="h-4 w-4 text-red-400" />
+          <h3 className="font-display text-base font-bold uppercase tracking-wide text-red-300">
+            Reset to Defaults
+          </h3>
+        </div>
+        <p className="text-sm text-gray-400">
+          Wipes all data on this browser and re-seeds defaults from{" "}
+          <code className="rounded bg-[#0A0D14] px-1 py-0.5 font-mono-t text-xs text-emerald-400">
+            frontend/src/config.js
+          </code>
+          . Student progress is not reset.
+        </p>
+        <button
+          data-testid="admin-reset-button"
+          onClick={handleReset}
+          className="mt-4 inline-flex items-center gap-2 rounded-md border border-red-500/60 bg-red-500/10 px-4 py-2 text-xs font-bold uppercase tracking-widest text-red-300 hover:bg-red-500/20 transition-colors"
+        >
+          <RotateCcw className="h-3.5 w-3.5" /> Reset All Data
+        </button>
+      </div>
+    </div>
   );
 }

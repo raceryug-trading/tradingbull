@@ -1,0 +1,30 @@
+{
+  "summary": "Frontend-only E2E testing of the 3 follow-up features (Export/Import JSON backup, student lesson progress tracking, admin Announcements board) plus regression of existing flows on the public preview URL (HashRouter, localStorage store). All requested scenarios passed. Verified: default seeded announcement rendering + dismiss persistence, overall/module progress counters and real-time toggle, admin announcement CRUD with tone + validation toast, cross-role visibility, export download (file content asserted), import restore (valid + invalid file), reset confirm dialog dismissal, protected routes, YouTube iframe, live page, WhatsApp button.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Modules sidebar", "issues": ["When the currently active lesson is also completed, the title shows emerald 'active' styling and no strike-through (active class wins over done); the green checkmark on the thumbnail still renders. Cosmetic only - verified strike-through + checkmark appear correctly for completed non-active lessons."]}
+    ]
+  },
+  "test_report_links": ["/app/test_reports/iteration_2.json"],
+  "action_items": [
+    "Optional: scope dismissed announcements per user (currently global key 'ta_dismissed_ann'), so a dismissal by one student does not hide the banner for another student on the same browser; also prune ids of deleted announcements.",
+    "Optional: resetAll() does not clear 'ta_dismissed_ann' - after a reset the re-seeded default announcement 'ann-1' stays hidden if it was previously dismissed.",
+    "Optional refactor: /app/frontend/src/pages/Admin.jsx is 793 lines (>700) - split AnnouncementsTab/DataTab/etc. into separate files.",
+    "Note (by design of static app): exported backup JSON contains admin + student passwords in plaintext; consider a warning in the UI copy."
+  ],
+  "critical_code_review_comments": [
+    "DataTab.handleExport revokes the object URL immediately after a.click() and never appends the anchor to the DOM - works in Chromium (verified real download 'trading-academy-backup-2026-08-16.json' with valid JSON) but is fragile in Firefox/Safari; append+revoke on timeout is safer.",
+    "importAll() only shallow-validates keys; a structurally wrong but JSON-valid file would be written to localStorage without schema checks (invalid non-JSON correctly toasts an error)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (static app, no backend by design)", "frontend": "100%"},
+  "seed_data_creation": "Test-only localStorage data (announcement 'TEST_ Market Holiday', imported backup /tmp/ta_backup_test.json with TEST_imported student/module). All data is browser-local; no persistent server state.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "student/student123, admin/admin123 (from config.js DEFAULT_*; /app/memory/test_credentials.md is empty - consider documenting there)",
+  "context_for_next_testing_agent": "Login inputs use testids login-username-input / login-password-input / login-submit-button with portal-switch-student|admin toggles (NOT student-username-input). Clear localStorage then reload before each scenario to re-seed. Progress key ta_progress_<username>, announcements key ta_announcements, dismissals key ta_dismissed_ann. Default seed = 3 modules / 4 lessons. Reset button triggers window.confirm - register a dialog handler that dismisses.",
+  "rca_of_the_issue": "No defects found; the only observations are per-browser (not per-user) dismissal scoping and active-vs-completed styling precedence in Modules.jsx line 304."
+}
