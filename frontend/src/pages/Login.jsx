@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Activity, Lock, User, Shield, GraduationCap, Cloud } from "lucide-react";
+import { Lock, User, Shield, GraduationCap, Cloud } from "lucide-react";
 import { toast } from "sonner";
 import { loginStudent, loginAdmin } from "../lib/store";
 import { firebaseEnabled } from "../lib/firebase";
 import { cloudLoginAdmin } from "../lib/cloudSync";
 import { BRAND } from "../config";
+import { BullLogo } from "../components/BullLogo";
 
 export default function Login() {
   const [mode, setMode] = useState("student");
@@ -70,8 +71,8 @@ export default function Login() {
 
           {/* Header block */}
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded border border-emerald-500/40 bg-emerald-500/10">
-              <Activity className="h-6 w-6 text-emerald-400" strokeWidth={2.5} />
+            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-lg border border-emerald-500/40 bg-emerald-500/10">
+              <BullLogo size={36} glow={false} />
             </div>
             <div className="font-mono-t text-[10px] uppercase tracking-[0.3em] text-emerald-400">
               Secure Terminal Access

@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { Activity, TrendingUp, LineChart, Radio, ShieldCheck, ArrowRight, Users, Star, Layers, BookOpen } from "lucide-react";
+import { TrendingUp, LineChart, Radio, ShieldCheck, ArrowRight, Users, Star, Layers, BookOpen } from "lucide-react";
 import { BRAND, STATS } from "../config";
 import MarketTicker from "../components/MarketTicker";
+import { BullLogo } from "../components/BullLogo";
 
 export default function Landing() {
   return (
@@ -61,7 +62,7 @@ export default function Landing() {
               <div className="rounded-lg border border-[#232D42] bg-[#111622] p-4 shadow-2xl">
                 <div className="flex items-center justify-between border-b border-[#232D42] pb-2">
                   <div className="flex items-center gap-2">
-                    <Activity className="h-4 w-4 text-emerald-400" />
+                    <BullLogo size={18} glow={false} />
                     <span className="font-mono-t text-[10px] uppercase tracking-widest text-gray-400">
                       NIFTY-50 / 15M
                     </span>

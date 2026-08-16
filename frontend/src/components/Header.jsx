@@ -1,9 +1,10 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { Activity, LogOut, Radio, Shield, Video, Cloud } from "lucide-react";
+import { LogOut, Radio, Shield, Video, Cloud } from "lucide-react";
 import { BRAND } from "../config";
 import { currentSession, logout, getLive } from "../lib/store";
 import { firebaseEnabled } from "../lib/firebase";
 import { cloudLogout } from "../lib/cloudSync";
+import { BullLogo } from "./BullLogo";
 
 const navItemClass = ({ isActive }) =>
   `flex items-center gap-1.5 px-3 py-2 text-sm font-medium tracking-wide uppercase transition-colors border-b-2 ${
@@ -31,10 +32,7 @@ export const Header = () => {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2" data-testid="brand-home-link">
-            <div className="relative">
-              <Activity className="h-6 w-6 text-emerald-400" strokeWidth={2.5} />
-              <div className="absolute -inset-1 rounded-full bg-emerald-400/20 blur-md -z-10" />
-            </div>
+            <BullLogo size={28} />
             <div className="font-display text-lg font-bold uppercase tracking-wider text-gray-100">
               {BRAND.name}
             </div>
