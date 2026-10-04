@@ -3,6 +3,7 @@ import { TrendingUp, LineChart, Radio, ShieldCheck, ArrowRight, Users, Star, Lay
 import { BRAND, STATS, CURRICULUM, TESTIMONIALS } from "../config";
 import MarketTicker from "../components/MarketTicker";
 import { BullLogo } from "../components/BullLogo";
+import PaymentSection from "../components/PaymentSection";
 
 export default function Landing() {
   return (
@@ -29,20 +30,27 @@ export default function Landing() {
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
+                <a
+                  href="#enroll"
+                  data-testid="hero-enroll-btn"
+                  className="group inline-flex items-center gap-2 rounded-md bg-emerald-500 px-5 py-3 font-bold uppercase tracking-widest text-sm text-[#0A0D14] hover:bg-emerald-400 transition-all"
+                >
+                  Enroll Now
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </a>
                 <Link
                   to="/login"
                   data-testid="hero-start-learning-btn"
-                  className="group inline-flex items-center gap-2 rounded-md bg-emerald-500 px-5 py-3 font-bold uppercase tracking-widest text-sm text-[#0A0D14] hover:bg-emerald-400 transition-all"
+                  className="inline-flex items-center gap-2 rounded-md border border-[#232D42] bg-[#111622] px-5 py-3 font-bold uppercase tracking-widest text-sm text-gray-100 hover:border-emerald-400 transition-colors"
                 >
-                  Access Trading Desk
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  Student Login
                 </Link>
                 <a
                   href={`https://wa.me/${(BRAND.whatsappNumber || "").replace(/[^\d]/g, "")}?text=${encodeURIComponent(BRAND.whatsappMessage)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   data-testid="hero-whatsapp-btn"
-                  className="inline-flex items-center gap-2 rounded-md border border-[#232D42] bg-[#111622] px-5 py-3 font-bold uppercase tracking-widest text-sm text-gray-100 hover:border-emerald-400 transition-colors"
+                  className="inline-flex items-center gap-2 rounded-md border border-[#25D366]/40 bg-[#25D366]/10 px-5 py-3 font-bold uppercase tracking-widest text-sm text-[#25D366] hover:bg-[#25D366]/20 transition-colors"
                 >
                   Ask on WhatsApp
                 </a>
@@ -171,6 +179,9 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Payment / Enrollment */}
+      <PaymentSection />
+
       {/* CTA */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
         <div className="rounded-lg border border-emerald-500/30 bg-gradient-to-br from-[#111622] to-[#0A0D14] p-8 sm:p-12 text-center">
@@ -188,6 +199,13 @@ export default function Landing() {
           >
             Log In to Portal <ArrowRight className="h-4 w-4" />
           </Link>
+          <a
+            href="#enroll"
+            data-testid="cta-enroll-btn"
+            className="mt-6 ml-3 inline-flex items-center gap-2 rounded-md border border-amber-500/50 bg-amber-500/10 px-5 py-3 font-bold uppercase tracking-widest text-sm text-amber-300 hover:bg-amber-500/20"
+          >
+            Enroll Now
+          </a>
         </div>
       </section>
     </div>

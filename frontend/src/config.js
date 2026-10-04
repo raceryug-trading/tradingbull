@@ -10,6 +10,55 @@ export const BRAND = {
   whatsappMessage: "Hi! I want to know more about your Trading Course.",
 };
 
+// UPI payment config — "Pay Now" opens the user's UPI app with these details.
+export const UPI = {
+  id: "raceryug-1@okaxis",
+  payeeName: "Jigar Machhi",
+  qrImage: process.env.PUBLIC_URL + "/upi-qr.jpg", // served from /public/
+};
+
+// Courses offered. Price = current (discounted) price. mrp = original strike-through.
+export const COURSES = [
+  {
+    id: "fno-mastery",
+    title: "F&O Trading Mastery Course",
+    subtitle: "Futures • Options • Strategies • Profits",
+    mrp: 12999,
+    price: 6999,
+    tag: "Special Launch Offer",
+    highlights: [
+      "F&O basics to advanced strategies",
+      "Option chain & Greeks explained",
+      "Straddles, strangles & spreads",
+      "Expiry day setups + volatility plays",
+      "Risk management for F&O",
+      "Lifetime access + live sessions",
+    ],
+  },
+  {
+    id: "stock-market-mastery",
+    title: "Stock Market Mastery Course",
+    subtitle: "Learn. Practice. Profit.",
+    mrp: 7999,
+    price: 3999,
+    tag: "Special Launch Offer",
+    highlights: [
+      "Stock market basics to advanced",
+      "Technical analysis + indicators",
+      "Candlestick & chart patterns",
+      "My personal trading setups",
+      "Trading psychology & discipline",
+      "Lifetime access + live sessions",
+    ],
+  },
+];
+
+// Coupon code — case-insensitive. Edit percent anytime.
+export const COUPON = {
+  code: "RENEW",
+  percentOff: 90,
+};
+
 // Public-facing stats shown on the landing page (edit freely)
 export const STATS = {
   enrollments: "400+",
