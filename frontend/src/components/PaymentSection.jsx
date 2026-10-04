@@ -206,23 +206,6 @@ export default function PaymentSection() {
                   Apply
                 </button>
               </div>
-              <div className="mt-2 flex flex-wrap gap-1.5" data-testid="coupon-hints">
-                {COUPONS.map((c) => (
-                  <button
-                    key={c.code}
-                    type="button"
-                    data-testid={`coupon-hint-${c.code}`}
-                    onClick={() => {
-                      setCoupon(c.code);
-                      setAppliedCoupon(c);
-                      toast.success(`${c.percentOff}% OFF applied with ${c.code}!`);
-                    }}
-                    className="rounded border border-amber-500/30 bg-amber-500/5 px-2 py-0.5 font-mono-t text-[10px] uppercase tracking-widest text-amber-300 hover:bg-amber-500/15 transition-colors"
-                  >
-                    {c.code} · {c.percentOff}% OFF
-                  </button>
-                ))}
-              </div>
             </div>
 
             {/* Price breakdown */}
