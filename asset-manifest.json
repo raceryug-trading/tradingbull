@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/tradingbull/static/css/main.f735efae.css",
+    "main.js": "/tradingbull/static/js/main.be60b36d.js",
+    "index.html": "/tradingbull/index.html",
+    "main.f735efae.css.map": "/tradingbull/static/css/main.f735efae.css.map",
+    "main.be60b36d.js.map": "/tradingbull/static/js/main.be60b36d.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f735efae.css",
+    "static/js/main.be60b36d.js"
+  ]
+}
