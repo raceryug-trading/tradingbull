@@ -1,0 +1,30 @@
+{
+  "summary": "Frontend-only verification of coupon-hints removal from PaymentSection. All feature checks + regression checks pass.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_results": {
+    "coupon_hints_removed_from_DOM": "PASS - [data-testid=coupon-hints] returns null",
+    "no_hint_chip_buttons": "PASS - coupon-hint-RENEW and coupon-hint-TRADE50 absent",
+    "no_code_leak_in_UI_text": "PASS - 'RENEW' and 'TRADE50' not visible in payment-section inner text",
+    "RENEW_apply_FnO": "PASS - final-price dropped 6,999 -> 700 (90% off)",
+    "TRADE50_apply_FnO": "PASS - final-price = 3,500 (50% off)",
+    "case_insensitive_renew": "PASS - lowercase 'renew' -> 700",
+    "case_insensitive_trade50": "PASS - lowercase 'trade50' -> 3,500",
+    "invalid_codes": "PASS - FAKE/FREE100/DISCOUNT all show 'Invalid coupon code' toast; final-price unchanged at 6,999",
+    "regression_pay_now": "PASS - upi:// href with am=6999 and tn=F&O course",
+    "regression_qr_image": "PASS - QR image loads",
+    "regression_whatsapp": "PASS - wa.me links with pre-filled text present",
+    "html_source_check": "PASS - 'coupon-hints' and 'coupon-hint-' absent from rendered HTML"
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Note (acceptable per user): COUPONS array remains in /app/frontend/src/config.js and is bundled into client JS - visible via view-source. User accepted this static-site limitation. For strong secrecy, move validation server-side."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100%"},
+  "seed_data_creation": "",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Coupon-hint chips removed cleanly. Manual coupon apply (RENEW=90%, TRADE50=50%) works case-insensitively. Only F&O course prices (700, 3500) explicitly verified; Stock Market discounted prices (400, 2000) not tested but same % logic applies."
+}
