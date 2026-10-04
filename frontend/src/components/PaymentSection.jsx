@@ -168,6 +168,33 @@ export default function PaymentSection() {
               </ul>
             </div>
 
+            {/* Course Poster */}
+            {course.poster && (
+              <div className="mt-5 overflow-hidden rounded-lg border border-[#232D42] bg-black">
+                <div className="flex items-center justify-between border-b border-[#232D42] bg-[#161D2F] px-3 py-2">
+                  <span className="font-mono-t text-[10px] uppercase tracking-widest text-emerald-400">
+                    Course Brochure
+                  </span>
+                  <a
+                    href={course.poster}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-testid={`course-poster-fullscreen-${course.id}`}
+                    className="font-mono-t text-[10px] uppercase tracking-widest text-gray-400 hover:text-emerald-400"
+                  >
+                    View full size ↗
+                  </a>
+                </div>
+                <img
+                  data-testid={`course-poster-${course.id}`}
+                  src={course.poster}
+                  alt={`${course.title} brochure`}
+                  loading="lazy"
+                  className="w-full"
+                />
+              </div>
+            )}
+
             {/* Coupon */}
             <div className="mt-5 rounded-md border border-dashed border-[#232D42] bg-[#0A0D14] p-4">
               <div className="flex items-center justify-between">

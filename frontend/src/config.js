@@ -26,6 +26,7 @@ export const COURSES = [
     mrp: 12999,
     price: 6999,
     tag: "Special Launch Offer",
+    poster: process.env.PUBLIC_URL + "/course-fno-mastery.jpg",
     highlights: [
       "F&O basics to advanced strategies",
       "Option chain & Greeks explained",
@@ -42,6 +43,7 @@ export const COURSES = [
     mrp: 7999,
     price: 3999,
     tag: "Special Launch Offer",
+    poster: process.env.PUBLIC_URL + "/course-stock-market.jpg",
     highlights: [
       "Stock market basics to advanced",
       "Technical analysis + indicators",
