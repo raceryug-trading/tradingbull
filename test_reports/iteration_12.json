@@ -1,0 +1,22 @@
+{
+  "summary": "Frontend-only testing for the new course poster/brochure feature in the PaymentSection. All 11 targeted checks passed: F&O poster renders by default with correct testid, naturalWidth>0 (853), header 'Course Brochure' visible, 'View full size' link has target=_blank and href containing /course-fno-mastery.jpg. Switching to Stock Market course swaps posters correctly (F&O removed, SM poster loaded naturalWidth=853, href contains /course-stock-market.jpg). Switching back restores F&O; no duplicates. Image uses w-full class (correct aspect). coupon-hints element remains removed. No console errors from poster loading.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Posters are large JPGs (loaded fine, ~500ms). Consider adding loading=\"lazy\" and width/height attributes on <img> to improve CLS and perf (minor)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100% (11/11 poster checks)"},
+  "test_credentials": "N/A",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Note the app is served under basename /tradingbull/, so public asset hrefs appear as /tradingbull/course-fno-mastery.jpg. The requirement 'href matches /course-fno-mastery.jpg' is satisfied as substring match. Payment-section elements (pay button, QR, WhatsApp) visually render; their exact testids were not verified in this run but prior iterations covered them.",
+  "rca of the issue": "N/A - no issues"
+}
