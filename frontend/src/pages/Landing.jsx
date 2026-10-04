@@ -5,6 +5,11 @@ import MarketTicker from "../components/MarketTicker";
 import { BullLogo } from "../components/BullLogo";
 import PaymentSection from "../components/PaymentSection";
 
+const scrollToEnroll = () => {
+  const el = document.getElementById("enroll");
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+};
+
 export default function Landing() {
   return (
     <div>
@@ -30,14 +35,15 @@ export default function Landing() {
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
-                <a
-                  href="#enroll"
+                <button
+                  type="button"
+                  onClick={scrollToEnroll}
                   data-testid="hero-enroll-btn"
                   className="group inline-flex items-center gap-2 rounded-md bg-emerald-500 px-5 py-3 font-bold uppercase tracking-widest text-sm text-[#0A0D14] hover:bg-emerald-400 transition-all"
                 >
                   Enroll Now
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </a>
+                </button>
                 <Link
                   to="/login"
                   data-testid="hero-start-learning-btn"
@@ -201,6 +207,7 @@ export default function Landing() {
           </Link>
           <a
             href="#enroll"
+            onClick={(e) => { e.preventDefault(); scrollToEnroll(); }}
             data-testid="cta-enroll-btn"
             className="mt-6 ml-3 inline-flex items-center gap-2 rounded-md border border-amber-500/50 bg-amber-500/10 px-5 py-3 font-bold uppercase tracking-widest text-sm text-amber-300 hover:bg-amber-500/20"
           >

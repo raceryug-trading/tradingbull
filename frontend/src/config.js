@@ -53,11 +53,14 @@ export const COURSES = [
   },
 ];
 
-// Coupon code — case-insensitive. Edit percent anytime.
-export const COUPON = {
-  code: "RENEW",
-  percentOff: 90,
-};
+// Coupon codes — case-insensitive. Add/edit anytime.
+export const COUPONS = [
+  { code: "RENEW", percentOff: 90 },
+  { code: "TRADE50", percentOff: 50 },
+];
+
+// Legacy single-coupon export kept for backward compatibility (not used anymore)
+export const COUPON = COUPONS[0];
 
 // Public-facing stats shown on the landing page (edit freely)
 export const STATS = {

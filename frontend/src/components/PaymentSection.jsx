@@ -10,14 +10,14 @@ import {
   BadgeCheck,
 } from "lucide-react";
 import { toast } from "sonner";
-import { BRAND, UPI, COURSES, COUPON } from "../config";
+import { BRAND, UPI, COURSES, COUPONS } from "../config";
 
 const inr = (n) => "₹" + Number(n).toLocaleString("en-IN");
 
 export default function PaymentSection() {
   const [selectedId, setSelectedId] = useState(COURSES[0].id);
   const [coupon, setCoupon] = useState("");
-  const [couponApplied, setCouponApplied] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState(null); // { code, percentOff } or null
   const [initiated, setInitiated] = useState(false);
 
   const course = useMemo(
@@ -26,16 +26,18 @@ export default function PaymentSection() {
   );
 
   const finalPrice = useMemo(() => {
-    if (!couponApplied) return course.price;
-    return Math.max(1, Math.round(course.price * (1 - COUPON.percentOff / 100)));
-  }, [course, couponApplied]);
+    if (!appliedCoupon) return course.price;
+    return Math.max(1, Math.round(course.price * (1 - appliedCoupon.percentOff / 100)));
+  }, [course, appliedCoupon]);
 
   const applyCoupon = () => {
-    if (coupon.trim().toUpperCase() === COUPON.code.toUpperCase()) {
-      setCouponApplied(true);
-      toast.success(`${COUPON.percentOff}% OFF applied!`);
+    const typed = coupon.trim().toUpperCase();
+    const match = COUPONS.find((c) => c.code.toUpperCase() === typed);
+    if (match) {
+      setAppliedCoupon(match);
+      toast.success(`${match.percentOff}% OFF applied with ${match.code}!`);
     } else {
-      setCouponApplied(false);
+      setAppliedCoupon(null);
       toast.error("Invalid coupon code");
     }
   };
@@ -46,20 +48,20 @@ export default function PaymentSection() {
       pn: UPI.payeeName,
       am: String(finalPrice),
       cu: "INR",
-      tn: `${course.title}${couponApplied ? ` (${COUPON.code})` : ""}`,
+      tn: `${course.title}${appliedCoupon ? ` (${appliedCoupon.code})` : ""}`,
     });
     return `upi://pay?${params.toString()}`;
-  }, [course, finalPrice, couponApplied]);
+  }, [course, finalPrice, appliedCoupon]);
 
   const whatsAppLink = useMemo(() => {
     const num = (BRAND.whatsappNumber || "").replace(/[^\d]/g, "");
     const msg = encodeURIComponent(
       `Hi, I just paid ${inr(finalPrice)} for the "${course.title}" via UPI (${UPI.id}). ${
-        couponApplied ? `Coupon ${COUPON.code} applied. ` : ""
+        appliedCoupon ? `Coupon ${appliedCoupon.code} applied. ` : ""
       }Please activate my login — screenshot attached.`
     );
     return `https://wa.me/${num}?text=${msg}`;
-  }, [course, finalPrice, couponApplied]);
+  }, [course, finalPrice, appliedCoupon]);
 
   const handlePayNow = () => {
     setInitiated(true);
@@ -175,12 +177,12 @@ export default function PaymentSection() {
                     Have a coupon?
                   </span>
                 </div>
-                {couponApplied && (
+                {appliedCoupon && (
                   <span
                     data-testid="coupon-badge"
                     className="inline-flex items-center gap-1 rounded-full border border-emerald-500/50 bg-emerald-500/10 px-2 py-0.5 font-mono-t text-[10px] uppercase tracking-widest text-emerald-300"
                   >
-                    <BadgeCheck className="h-3 w-3" /> {COUPON.percentOff}% OFF
+                    <BadgeCheck className="h-3 w-3" /> {appliedCoupon.percentOff}% OFF
                   </span>
                 )}
               </div>
@@ -190,7 +192,7 @@ export default function PaymentSection() {
                   value={coupon}
                   onChange={(e) => {
                     setCoupon(e.target.value);
-                    if (couponApplied) setCouponApplied(false);
+                    if (appliedCoupon) setAppliedCoupon(null);
                   }}
                   placeholder="Enter coupon code"
                   className="input-terminal flex-1 rounded px-3 py-2 text-sm uppercase tracking-wider"
@@ -204,6 +206,23 @@ export default function PaymentSection() {
                   Apply
                 </button>
               </div>
+              <div className="mt-2 flex flex-wrap gap-1.5" data-testid="coupon-hints">
+                {COUPONS.map((c) => (
+                  <button
+                    key={c.code}
+                    type="button"
+                    data-testid={`coupon-hint-${c.code}`}
+                    onClick={() => {
+                      setCoupon(c.code);
+                      setAppliedCoupon(c);
+                      toast.success(`${c.percentOff}% OFF applied with ${c.code}!`);
+                    }}
+                    className="rounded border border-amber-500/30 bg-amber-500/5 px-2 py-0.5 font-mono-t text-[10px] uppercase tracking-widest text-amber-300 hover:bg-amber-500/15 transition-colors"
+                  >
+                    {c.code} · {c.percentOff}% OFF
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Price breakdown */}
@@ -212,12 +231,12 @@ export default function PaymentSection() {
                 <span>Course price</span>
                 <span className="font-mono-t">{inr(course.price)}</span>
               </div>
-              {couponApplied && (
+              {appliedCoupon && (
                 <div
                   className="mt-1 flex items-center justify-between text-sm text-emerald-300"
                   data-testid="coupon-discount-line"
                 >
-                  <span>Coupon {COUPON.code} ({COUPON.percentOff}% off)</span>
+                  <span>Coupon {appliedCoupon.code} ({appliedCoupon.percentOff}% off)</span>
                   <span className="font-mono-t">
                     − {inr(course.price - finalPrice)}
                   </span>
