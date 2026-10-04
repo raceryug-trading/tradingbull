@@ -1,0 +1,22 @@
+{
+  "summary": "Frontend-only testing of new UPI PaymentSection on Landing page. All 14 specified acceptance criteria passed. Default F&O course selected (emerald border + check), course switch updates final-price + pay-btn text + UPI am param correctly (6999 <-> 3999). Invalid coupon shows error toast and keeps price unchanged. Valid coupon 'RENEW' (tested mixed-case 'ReNeW') shows 90% OFF badge, discount line, drops price to 400 (stock) / 700 (F&O). Retyping coupon clears applied state and reverts to full price. Pay Now href is a correct upi:// deep-link with pa=raceryug-1%40okaxis, pn=Jigar+Machhi, am=<finalPrice>, cu=INR, tn=<course title> (+(RENEW) suffix when coupon active). UPI id text displays raceryug-1@okaxis. Copy UPI button works (clipboard verified to contain 'raceryug-1@okaxis'). QR image loads correctly from /tradingbull/upi-qr.jpg (naturalWidth=1152, naturalHeight=1600). Payee 'Jigar Machhi' visible. WhatsApp confirm href begins with https://wa.me/917777930377 and pre-filled text includes final price, course title, and 'Coupon RENEW applied' when active. Hero enroll button href=#enroll. Regression: curriculum shows 19 cards, testimonials 6 cards. No new JS/page errors introduced by the PaymentSection. The only console error observed is a pre-existing Firestore unavailable error (network from preview env to firebase); not caused by this task.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Firestore connectivity from preview container appears blocked (pre-existing). The student login regression (test1/test123) cannot be executed from this preview env due to Firestore 'unavailable' errors — unrelated to this feature. Main agent may verify student login from a browser with internet access to Firestore.",
+    "Minor UX: switching courses while a coupon is applied keeps the coupon applied (price recomputes to 10% of the new course). Behavior is reasonable but not explicitly specified; consider whether this is intended."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100%"},
+  "test_credentials": "N/A (Firestore login not tested due to environment network to firebase)",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "PaymentSection fully verified at /enroll. All data-testids wired correctly. UPI deep link, QR, WhatsApp href, coupon flow all pass. Only outstanding uncertainty: Firestore-backed student login cannot be exercised from the preview container; test from a real browser if needed."
+}
