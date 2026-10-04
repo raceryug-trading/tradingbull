@@ -1,0 +1,35 @@
+{
+  "summary": "Frontend-only testing of (1) smooth-scroll Enroll Now buttons and (2) new TRADE50 (50% off) coupon alongside RENEW (90% off). All 12 scenarios from the review request passed on the live preview URL.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_results": {
+    "hero_enroll_scroll": "PASS — scrollY 0 → 3018, payment-section top=0",
+    "cta_enroll_scroll": "PASS — payment-section top=0 after click",
+    "coupon_hints_rendered": "PASS — 'RENEW · 90% OFF' and 'TRADE50 · 50% OFF' visible",
+    "trade50_chip_click_fno": "PASS — ₹6,999 → ₹3,500, badge '50% OFF', input filled 'TRADE50'",
+    "renew_override_after_trade50": "PASS — ₹3,500 → ₹700 (90% off)",
+    "manual_lowercase_trade50": "PASS — 'trade50' → ₹3,500",
+    "manual_RENEW": "PASS — ₹700",
+    "invalid_coupon_FAKE123": "PASS — final price reverts to ₹6,999, no coupon-badge",
+    "course_switch_recomputes": "PASS — switching to Stock course with TRADE50 active → ₹2,000",
+    "pay_now_href_contains_coupon": "PASS — tn=Stock+Market+Mastery+Course+%28TRADE50%29, am=2000",
+    "whatsapp_href_mentions_coupon": "PASS — contains 'Coupon TRADE50 applied'",
+    "regression_payment_section": "PASS — QR, UPI copy, course selector, final-price all intact"
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Minor: cta-enroll-btn still uses an <a href='#enroll'> with preventDefault — works, but could be a <button> for consistency with hero-enroll-btn (not blocking).",
+    "Minor: In applyCoupon(), success/error toast fires on apply button, but clicking a hint-chip also fires toast — behavior is consistent; no action needed."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100%"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Both new features (smooth-scroll Enroll buttons + dual coupons RENEW/TRADE50) are fully functional end-to-end. UPI deep link and WhatsApp link both correctly embed active coupon code. Case-insensitive matching verified."
+}
